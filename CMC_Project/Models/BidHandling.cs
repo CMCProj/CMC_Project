@@ -13,6 +13,7 @@ namespace SetUnitPriceByExcel
         public static void BidToXml()
         {
             String copiedFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\EmptyBid"; // EmptyBid폴더 주소 저장
+            //예외처리가 필요함
             string[] bidFile = Directory.GetFiles(copiedFolder, "*.BID");
             string myfile = bidFile[0];
             filename = Path.GetFileNameWithoutExtension(bidFile[0]);

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
 
 namespace SetUnitPriceByExcel
 {
@@ -19,79 +19,8 @@ namespace SetUnitPriceByExcel
         public static double? PersonalRateNum; //
         public static double? BalanceRateNum; // 사정율 출력용 변수
 
-
         public static string desktop_path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);  //바탕화면 경로
         public static string work_path = Path.Combine(desktop_path, "WORK DIRECTORY");   //작업폴더(WORK DIRECTORY) 경로
-
-        private decimal materialUnit;   //재료비 단가
-        private decimal laborUnit;      //노무비 단가
-        private decimal expenseUnit;   //경비 단가
-
-        public string Item { get; set; }    //항목 구분(공종(입력불가), 무대(입력불가), 일반, 관급, PS, 제요율적용제외, 안전관리비, PS내역, 표준시장단가)
-        public string ConstructionNum { get; set; }     //공사 인덱스
-        public string WorkNum { get; set; }             //세부 공사 인덱스
-        public string DetailWorkNum { get; set; }       //세부 공종 인덱스
-        public string Code { get; set; }        //코드
-        public string Name { get; set; }        //품명
-        public string Standard { get; set; }    //규격
-        public string Unit { get; set; }        //단위
-        public decimal Quantity { get; set; }   //수량
-        public decimal MaterialUnit //재료비 단가
-        {
-            get
-            {
-                //사용자가 단가 정수처리를 원한다면("2") 정수 값으로 return 
-                if (UnitPriceTrimming.Equals("2"))
-                    return Math.Ceiling(materialUnit);
-                return materialUnit;
-            }
-            set
-            {
-                //소수 첫째 자리 아래로 절사한 값을 초기 값으로 세팅
-                materialUnit = Math.Truncate(value * 10) / 10;
-                //사용자가 단가 정수처리를 원한다면 정수 값으로 세팅 (Reset 함수 사용 시 단가 소수처리 옵션과 상관없이 소수 첫째 자리 아래로 절사) 
-                if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
-                    materialUnit = Math.Ceiling(value);
-            }
-        }
-        public decimal LaborUnit //노무비 단가
-        {
-            get
-            {
-                if (UnitPriceTrimming.Equals("2"))
-                    return Math.Ceiling(laborUnit);
-                return laborUnit;
-            }
-            set
-            {
-                laborUnit = Math.Truncate(value * 10) / 10;
-                if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
-                    laborUnit = Math.Ceiling(value);
-            }
-        }
-        public decimal ExpenseUnit //경비 단가
-        {
-            get
-            {
-                if (UnitPriceTrimming.Equals("2"))
-                    return Math.Ceiling(expenseUnit);
-                return expenseUnit;
-            }
-            set
-            {
-                expenseUnit = Math.Truncate(value * 10) / 10;
-                if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
-                    expenseUnit = Math.Ceiling(value);
-            }
-        }
-        public decimal Material { get { return Math.Truncate(Quantity * MaterialUnit); } }      //재료비 (수량 x 단가)
-        public decimal Labor { get { return Math.Truncate(Quantity * LaborUnit); } }            //노무비
-        public decimal Expense { get { return Math.Truncate(Quantity * ExpenseUnit); } }        //경비
-        public decimal UnitPriceSum { get { return MaterialUnit + LaborUnit + ExpenseUnit; } }  //합계단가
-        public decimal PriceSum { get { return Material + Labor + Expense; } }  //합계(세부공종별 금액의 합계)
-        public decimal Weight { get; set; }     //가중치
-        public decimal PriceScore { get; set; } //세부 점수
-        public decimal Score { get { return PriceScore * Weight; } }  //단가 점수(세부 점수 * 가중치)
 
         //원가계산서에 필요한 데이터
         public static long ConstructionTerm { get; set; }       //공사 기간
@@ -129,7 +58,8 @@ namespace SetUnitPriceByExcel
         public static decimal InvestigateStandardMarket { get; set; }   //표준시장단가 합계(조사내역)
         public static decimal FixedPricePercent { get; set; }           //고정금액 비중
 
-        public static Dictionary<string, List<Data>> Dic = new Dictionary<string, List<Data>>();        //key : 세부공사별 번호 / value : 세부공사별 리스트
+        public static Dictionary<string, List<DataT3>> Dic = new Dictionary<string, List<DataT3>>();        //key : 세부공사별 번호 / value : 세부공사별 리스트
+        public static Dictionary<string, List<DataT5>> DicT5 = new Dictionary<string, List<DataT5>>();
         public static Dictionary<string, string> ConstructionNums = new Dictionary<string, string>();   //세부 공사별 번호 저장
         public static Dictionary<string, string> MatchedConstNum = new Dictionary<string, string>();    //실내역과 세부공사별 번호의 매칭 결과
 
@@ -153,5 +83,92 @@ namespace SetUnitPriceByExcel
         public static decimal BalancedRate { get; set; }    //업체 평균 예측율
         public static decimal PersonalRate { get; set; }    //내 예가 사정률
         public static string ExecuteReset { get; set; } = "0";   //Reset 함수 사용시 단가 소수처리 옵션과 별개로 소수 첫째자리 아래로 절사
+    }
+
+    class DataT3
+    {
+        private decimal materialUnit;   //재료비 단가
+        private decimal laborUnit;      //노무비 단가
+        private decimal expenseUnit;   //경비 단가
+
+        public string Item { get; set; }    //항목 구분(공종(입력불가), 무대(입력불가), 일반, 관급, PS, 제요율적용제외, 안전관리비, PS내역, 표준시장단가)
+        public string ConstructionNum { get; set; }     //공사 인덱스
+        public string WorkNum { get; set; }             //세부 공사 인덱스
+        public string DetailWorkNum { get; set; }       //세부 공종 인덱스
+        public string Code { get; set; }        //코드
+        public string Name { get; set; }        //품명
+        public string Standard { get; set; }    //규격
+        public string Unit { get; set; }        //단위
+        public decimal Quantity { get; set; }   //수량
+        public decimal MaterialUnit //재료비 단가
+        {
+            get
+            {
+                //사용자가 단가 정수처리를 원한다면("2") 정수 값으로 return 
+                if (Data.UnitPriceTrimming.Equals("2"))
+                    return Math.Ceiling(materialUnit);
+                return materialUnit;
+            }
+            set
+            {
+                //소수 첫째 자리 아래로 절사한 값을 초기 값으로 세팅
+                materialUnit = Math.Truncate(value * 10) / 10;
+                //사용자가 단가 정수처리를 원한다면 정수 값으로 세팅 (Reset 함수 사용 시 단가 소수처리 옵션과 상관없이 소수 첫째 자리 아래로 절사) 
+                if (Data.UnitPriceTrimming.Equals("2") && Data.ExecuteReset.Equals("0"))
+                    materialUnit = Math.Ceiling(value);
+            }
+        }
+        public decimal LaborUnit //노무비 단가
+        {
+            get
+            {
+                if (Data.UnitPriceTrimming.Equals("2"))
+                    return Math.Ceiling(laborUnit);
+                return laborUnit;
+            }
+            set
+            {
+                laborUnit = Math.Truncate(value * 10) / 10;
+                if (Data.UnitPriceTrimming.Equals("2") && Data.ExecuteReset.Equals("0"))
+                    laborUnit = Math.Ceiling(value);
+            }
+        }
+        public decimal ExpenseUnit //경비 단가
+        {
+            get
+            {
+                if (Data.UnitPriceTrimming.Equals("2"))
+                    return Math.Ceiling(expenseUnit);
+                return expenseUnit;
+            }
+            set
+            {
+                expenseUnit = Math.Truncate(value * 10) / 10;
+                if (Data.UnitPriceTrimming.Equals("2") && Data.ExecuteReset.Equals("0"))
+                    expenseUnit = Math.Ceiling(value);
+            }
+        }
+        public decimal Material { get { return Math.Truncate(Quantity * MaterialUnit); } }      //재료비 (수량 x 단가)
+        public decimal Labor { get { return Math.Truncate(Quantity * LaborUnit); } }            //노무비
+        public decimal Expense { get { return Math.Truncate(Quantity * ExpenseUnit); } }        //경비
+        public decimal UnitPriceSum { get { return MaterialUnit + LaborUnit + ExpenseUnit; } }  //합계단가
+        public decimal PriceSum { get { return Material + Labor + Expense; } }  //합계(세부공종별 금액의 합계)
+        public decimal Weight { get; set; }     //가중치
+        public decimal PriceScore { get; set; } //세부 점수
+        public decimal Score { get { return PriceScore * Weight; } }  //단가 점수(세부 점수 * 가중치)
+    }
+
+    class DataT5
+    {
+        public string ConstructionNum { get; set; } //단위 공사 순번
+        public string AccountNum { get; set; }  //원가 계산서 상의 순번
+        public string AccountPosition { get; set; } //원가계산서상 위치구분 1 : 순공사원가/재, 2 : 순공사원가/노, 3 : 순공사원가/경, 4 : 순공사원가 ~PS공종, 5 : PS공종/제요율적용제외공종, 6 : 총합계이후
+        public string Name { get; set; }    //비목명
+        public string Formula { get; set; } //산출식구분 0 : 사용자입력, 1 : 노무비의, 2 : 직접노무비의, 4 : 직접공사비의, 5 : 총합계의, 6 : 재료비의, 7 : 고정금액, 8 : 재료비+노무비의, 9 : 순공사원가의, 11 : 공사이행보증서발급수수료 계상기준
+        public decimal ApplicableRate { get; set; }  //적용 요율(%)
+        public decimal DirectConstructionRate { get; set; }  //직공비 요율(%)
+        public decimal Price { get; set; }  //입찰 금액
+        public string AccountType { get; set; } //원가계산서항목 유형 구분 B : 간접노무비, C : 경비등합계, D : 일반관리비, E : 법정경비, F : 이윤, H : 부가가치세, J : 매입부가가치세
+
     }
 }
