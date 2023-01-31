@@ -4,7 +4,15 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-
+/*
+ 23.01.31 업데이트
+ --------------------
+  UI 수정
+  사업자등록번호 입력받기&Data에 저장
+  BusinessChangedHandler() 추가
+  SetBusinessInfoBtnClick() 추가
+ --------------------
+*/
 namespace CMC_Project.Views
 {
     /// <summary>
@@ -17,6 +25,7 @@ namespace CMC_Project.Views
         public AdjustmentPage()
         {
             InitializeComponent();
+            this.businessInfo.TextChanged += BusinessChangedHandler;
             this.averageRating.TextChanged += AverageChangedHandler;
             this.estimateRating.TextChanged += EstimateChangedHandler;
 
@@ -53,6 +62,25 @@ namespace CMC_Project.Views
         }
 
         //sender: 이벤트 발생자, args: 이벤트 인자
+
+        private void BusinessChangedHandler(object sender, TextChangedEventArgs args)
+        {
+            TextBox BusinessInfo = sender as TextBox;
+            int selectionStart = BusinessInfo.SelectionStart;
+            string result = string.Empty;
+            Data.CompanyRegistrationNum = (Double.Parse(BusinessInfo.GetLineText(0)));
+
+            foreach (char character in BusinessInfo.Text.ToCharArray())
+            {
+                if (char.IsDigit(character) || char.IsControl(character))
+                {
+                    result += character;
+
+                }
+            }
+            BusinessInfo.Text = result;
+            BusinessInfo.SelectionStart = selectionStart <= BusinessInfo.Text.Length ? selectionStart : BusinessInfo.Text.Length;
+        }
         private void AverageChangedHandler(object sender, TextChangedEventArgs args)
         {
             TextBox averageRating = sender as TextBox;
@@ -184,6 +212,19 @@ namespace CMC_Project.Views
             }
         }
 
+        private void SetBusinessInfoBtnClick(object sender, RoutedEventArgs e)
+        {
+
+            if (businessInfo.Text == string.Empty)
+            {
+                MessageBox.Show("사업자등록번호를 입력해주세요.");
+            }
+            else
+            {
+                Data.CompanyRegistrationNum = Double.Parse(businessInfo.Text);
+                DisplayDialog($"사업자등록번호({Data.CompanyRegistrationNum})를\n저장했습니다.", "Success");
+            }
+        }
 
         private void CalBtnClick(object sender, RoutedEventArgs e)
         {
