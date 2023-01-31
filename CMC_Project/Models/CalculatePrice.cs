@@ -312,7 +312,7 @@ namespace SetUnitPriceByExcel
                         { //maxBid 초기화
                             maxBid = bid;
                         }
-                        if (String.Concat(bid.Element("C13").Value) == "1" && String.Concat(bid.Element("C18").Value) != "0")
+                        if (String.Concat(bid.Element("C15").Value) == "1" && String.Concat(bid.Element("C19").Value) != "0")
                         {
                             if (Convert.ToDecimal(bid.Element("C18").Value) > Convert.ToDecimal(maxBid.Element("C18").Value))
                             {
