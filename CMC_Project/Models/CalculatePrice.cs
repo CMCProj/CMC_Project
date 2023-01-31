@@ -1,10 +1,33 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using System.Collections.Generic;
+
+/*
+23.01.31 업데이트
+------------------
+새로운 Xml 구조에 맞게 수정
+==================
+T3
+    C24 -> C9
+    C4  -> C5
+    C15 -> C16
+    C16 -> C17
+    C17 -> C18
+    C18 -> C19
+    C19 -> C20
+    C20 -> C21
+    C21 -> C22
+    C22 -> C23
+==================
+T5
+    C9  -> C4
+    C22 -> C8
+==================
+*/
 
 namespace SetUnitPriceByExcel
 {
@@ -25,7 +48,7 @@ namespace SetUnitPriceByExcel
             foreach (var bid in eleBID)
             {
                 //표준시장단가 항목인경우 99.7% 적용
-                if (bid.Element("C24") != null && string.Concat(bid.Element("C4").Value) == "S")
+                if (bid.Element("C9") != null && string.Concat(bid.Element("C5").Value) == "S")
                 {
                     var constNum = string.Concat(bid.Element("C1").Value);      //세부공사 번호
                     var numVal = string.Concat(bid.Element("C2").Value);        //세부공종 번호
@@ -34,15 +57,15 @@ namespace SetUnitPriceByExcel
                     if (curObject.Item.Equals("표준시장단가"))
                     {
                         //직공비, 고정금액, 표준시장단가 금액 재계산
-                        Data.RealDirectMaterial -= Convert.ToDecimal(string.Concat(bid.Element("C19").Value));
-                        Data.RealDirectLabor -= Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
-                        Data.RealOutputExpense -= Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
-                        Data.FixedPriceDirectMaterial -= Convert.ToDecimal(string.Concat(bid.Element("C19").Value));
-                        Data.FixedPriceDirectLabor -= Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
-                        Data.FixedPriceOutputExpense -= Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
-                        Data.StandardMaterial -= Convert.ToDecimal(string.Concat(bid.Element("C19").Value));
-                        Data.StandardLabor -= Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
-                        Data.StandardExpense -= Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.RealDirectMaterial -= Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                        Data.RealDirectLabor -= Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.RealOutputExpense -= Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
+                        Data.FixedPriceDirectMaterial -= Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                        Data.FixedPriceDirectLabor -= Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.FixedPriceOutputExpense -= Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
+                        Data.StandardMaterial -= Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                        Data.StandardLabor -= Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.StandardExpense -= Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
 
                         //표준시장단가 99.7% 적용
                         curObject.MaterialUnit = Math.Ceiling(curObject.MaterialUnit * 0.997m);
@@ -50,25 +73,25 @@ namespace SetUnitPriceByExcel
                         curObject.ExpenseUnit = Math.Ceiling(curObject.ExpenseUnit * 0.997m);
 
                         //단가 변경사항 xml 파일에 적용
-                        bid.Element("C15").Value = curObject.MaterialUnit.ToString();    //재료비 단가
-                        bid.Element("C16").Value = curObject.LaborUnit.ToString();       //노무비 단가
-                        bid.Element("C17").Value = curObject.ExpenseUnit.ToString();     //경비 단가
-                        bid.Element("C18").Value = curObject.UnitPriceSum.ToString();    //합계 단가
-                        bid.Element("C19").Value = curObject.Material.ToString();    //재료비
-                        bid.Element("C20").Value = curObject.Labor.ToString();       //노무비
-                        bid.Element("C21").Value = curObject.Expense.ToString();     //경비
-                        bid.Element("C22").Value = curObject.PriceSum.ToString();    //합계
+                        bid.Element("C16").Value = curObject.MaterialUnit.ToString();    //재료비 단가
+                        bid.Element("C17").Value = curObject.LaborUnit.ToString();       //노무비 단가
+                        bid.Element("C18").Value = curObject.ExpenseUnit.ToString();     //경비 단가
+                        bid.Element("C19").Value = curObject.UnitPriceSum.ToString();    //합계 단가
+                        bid.Element("C20").Value = curObject.Material.ToString();    //재료비
+                        bid.Element("C21").Value = curObject.Labor.ToString();       //노무비
+                        bid.Element("C22").Value = curObject.Expense.ToString();     //경비
+                        bid.Element("C23").Value = curObject.PriceSum.ToString();    //합계
 
                         //붙여넣기한 각 객체의 재료비, 노무비, 경비를 직접재료비, 직접노무비, 산출 경비에 더해나감
-                        Data.RealDirectMaterial += Convert.ToDecimal(string.Concat(bid.Element("C19").Value)); // 실내역 직접 재료비(일반, - , 표준시장단가)
-                        Data.RealDirectLabor += Convert.ToDecimal(string.Concat(bid.Element("C20").Value)); // 실내역 직접 노무비(일반, - , 표준시장단가)
-                        Data.RealOutputExpense += Convert.ToDecimal(string.Concat(bid.Element("C21").Value)); // 실내역 산출 경비(일반, - , 표준시장단가)
-                        Data.FixedPriceDirectMaterial += Convert.ToDecimal(string.Concat(bid.Element("C19").Value)); //고정금액 항목 직접 재료비
-                        Data.FixedPriceDirectLabor += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
-                        Data.FixedPriceOutputExpense += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
-                        Data.StandardMaterial += Convert.ToDecimal(string.Concat(bid.Element("C19").Value)); //표준시장단가 재료비
-                        Data.StandardLabor += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
-                        Data.StandardExpense += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.RealDirectMaterial += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                        Data.RealDirectLabor += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.RealOutputExpense += Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
+                        Data.FixedPriceDirectMaterial += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                        Data.FixedPriceDirectLabor += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.FixedPriceOutputExpense += Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
+                        Data.StandardMaterial += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                        Data.StandardLabor += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.StandardExpense += Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
                     }
                 }
             }
@@ -156,7 +179,7 @@ namespace SetUnitPriceByExcel
             foreach (var bid in eleBID)
             {
                 //일반 항목인 경우
-                if (bid.Element("C24") != null && string.Concat(bid.Element("C4").Value) == "S")
+                if (bid.Element("C9") != null && string.Concat(bid.Element("C5").Value) == "S")
                 {
                     var constNum = string.Concat(bid.Element("C1").Value);      //세부공사 번호
                     var numVal = string.Concat(bid.Element("C2").Value);        //세부공종 번호
@@ -165,9 +188,9 @@ namespace SetUnitPriceByExcel
                     if (curObject.Item.Equals("일반"))
                     {
                         //직접공사비 재계산
-                        Data.RealDirectMaterial -= Convert.ToDecimal(string.Concat(bid.Element("C19").Value));
-                        Data.RealDirectLabor -= Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
-                        Data.RealOutputExpense -= Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.RealDirectMaterial -= Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                        Data.RealDirectLabor -= Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.RealOutputExpense -= Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
 
                         var targetPrice = (curObject.MaterialUnit + curObject.LaborUnit + curObject.ExpenseUnit) * targetRate;  //Target 단가 합계
 
@@ -187,19 +210,19 @@ namespace SetUnitPriceByExcel
                                 curObject.ExpenseUnit = Math.Ceiling(curObject.ExpenseUnit * 0.5m);
 
                                 //최종 단가 및 합계 계산
-                                bid.Element("C15").Value = curObject.MaterialUnit.ToString();    //재료비 단가
-                                bid.Element("C16").Value = curObject.LaborUnit.ToString();       //노무비 단가
-                                bid.Element("C17").Value = curObject.ExpenseUnit.ToString();     //경비 단가
-                                bid.Element("C18").Value = curObject.UnitPriceSum.ToString();    //합계 단가
-                                bid.Element("C19").Value = curObject.Material.ToString();    //재료비
-                                bid.Element("C20").Value = curObject.Labor.ToString();       //노무비
-                                bid.Element("C21").Value = curObject.Expense.ToString();     //경비
-                                bid.Element("C22").Value = curObject.PriceSum.ToString();    //합계
+                                bid.Element("C16").Value = curObject.MaterialUnit.ToString();    //재료비 단가
+                                bid.Element("C17").Value = curObject.LaborUnit.ToString();       //노무비 단가
+                                bid.Element("C18").Value = curObject.ExpenseUnit.ToString();     //경비 단가
+                                bid.Element("C19").Value = curObject.UnitPriceSum.ToString();    //합계 단가
+                                bid.Element("C20").Value = curObject.Material.ToString();    //재료비
+                                bid.Element("C21").Value = curObject.Labor.ToString();       //노무비
+                                bid.Element("C22").Value = curObject.Expense.ToString();     //경비
+                                bid.Element("C23").Value = curObject.PriceSum.ToString();    //합계
 
                                 //붙여넣기한 각 객체의 재료비, 노무비, 경비를 직접재료비, 직접노무비, 산출 경비에 더해나감
-                                Data.RealDirectMaterial += Convert.ToDecimal(string.Concat(bid.Element("C19").Value));
-                                Data.RealDirectLabor += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
-                                Data.RealOutputExpense += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                                Data.RealDirectMaterial += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                                Data.RealDirectLabor += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                                Data.RealOutputExpense += Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
 
                                 continue;
                             }
@@ -256,19 +279,19 @@ namespace SetUnitPriceByExcel
                         curObject.LaborUnit = myLaborUnit;
                         curObject.ExpenseUnit = myExpenseUnit;
                         //최종 단가 및 합계 계산
-                        bid.Element("C15").Value = curObject.MaterialUnit.ToString();    //재료비 단가
-                        bid.Element("C16").Value = curObject.LaborUnit.ToString();       //노무비 단가
-                        bid.Element("C17").Value = curObject.ExpenseUnit.ToString();     //경비 단가
-                        bid.Element("C18").Value = curObject.UnitPriceSum.ToString();    //합계 단가
-                        bid.Element("C19").Value = curObject.Material.ToString();    //재료비
-                        bid.Element("C20").Value = curObject.Labor.ToString();       //노무비
-                        bid.Element("C21").Value = curObject.Expense.ToString();     //경비
-                        bid.Element("C22").Value = curObject.PriceSum.ToString();    //합계
+                        bid.Element("C16").Value = curObject.MaterialUnit.ToString();    //재료비 단가
+                        bid.Element("C17").Value = curObject.LaborUnit.ToString();       //노무비 단가
+                        bid.Element("C18").Value = curObject.ExpenseUnit.ToString();     //경비 단가
+                        bid.Element("C19").Value = curObject.UnitPriceSum.ToString();    //합계 단가
+                        bid.Element("C20").Value = curObject.Material.ToString();    //재료비
+                        bid.Element("C21").Value = curObject.Labor.ToString();       //노무비
+                        bid.Element("C22").Value = curObject.Expense.ToString();     //경비
+                        bid.Element("C23").Value = curObject.PriceSum.ToString();    //합계
 
                         //붙여넣기한 각 객체의 재료비, 노무비, 경비를 직접재료비, 직접노무비, 산출 경비에 더해나감
-                        Data.RealDirectMaterial += Convert.ToDecimal(string.Concat(bid.Element("C19").Value));
-                        Data.RealDirectLabor += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
-                        Data.RealOutputExpense += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.RealDirectMaterial += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                        Data.RealDirectLabor += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.RealOutputExpense += Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
                     }
                     //제요율적용제외공종 단가 재세팅
                     else if (curObject.Item == "제요율적용제외")
@@ -299,7 +322,7 @@ namespace SetUnitPriceByExcel
 
             foreach (var bid in eleBID)
             {
-                if (bid.Element("C24") != null && string.Concat(bid.Element("C4").Value) == "S")
+                if (bid.Element("C9") != null && string.Concat(bid.Element("C5").Value) == "S")
                 {
                     var constNum = string.Concat(bid.Element("C1").Value);      //세부공사 번호
                     var numVal = string.Concat(bid.Element("C2").Value);        //세부공종 번호
@@ -312,11 +335,11 @@ namespace SetUnitPriceByExcel
                         { //maxBid 초기화
                             maxBid = bid;
                         }
-                        if (String.Concat(bid.Element("C13").Value) == "1" && String.Concat(bid.Element("C18").Value) != "0")
+                        if (String.Concat(bid.Element("C15").Value) == "1" && String.Concat(bid.Element("C19").Value) != "0")
                         {
-                            if (Convert.ToDecimal(bid.Element("C18").Value) > Convert.ToDecimal(maxBid.Element("C18").Value))
+                            if (Convert.ToDecimal(bid.Element("C19").Value) > Convert.ToDecimal(maxBid.Element("C19").Value))
                             {
-                                if ((Convert.ToDecimal(string.Concat(bid.Element("C18").Value)) * 1.5m) > curObject.PriceSum + (TempExPrice - exSum))
+                                if ((Convert.ToDecimal(string.Concat(bid.Element("C19").Value)) * 1.5m) > curObject.PriceSum + (TempExPrice - exSum))
                                 {
                                     keyFound = 1;
                                     maxBid = bid;
@@ -324,14 +347,14 @@ namespace SetUnitPriceByExcel
                             }
                         }   //수량이 1이고 합계단가가 0이 아닐 때, 조정된 금액이 조사금액의 150% 미만이면 maxBid 업데이트
 
-                        bid.Element("C15").Value = curObject.MaterialUnit.ToString();    //재료비 단가
-                        bid.Element("C16").Value = curObject.LaborUnit.ToString();       //노무비 단가
-                        bid.Element("C17").Value = curObject.ExpenseUnit.ToString();     //경비 단가
-                        bid.Element("C18").Value = curObject.UnitPriceSum.ToString();    //합계 단가
-                        bid.Element("C19").Value = curObject.Material.ToString();    //재료비
-                        bid.Element("C20").Value = curObject.Labor.ToString();       //노무비
-                        bid.Element("C21").Value = curObject.Expense.ToString();     //경비
-                        bid.Element("C22").Value = curObject.PriceSum.ToString();    //합계
+                        bid.Element("C16").Value = curObject.MaterialUnit.ToString();    //재료비 단가
+                        bid.Element("C17").Value = curObject.LaborUnit.ToString();       //노무비 단가
+                        bid.Element("C18").Value = curObject.ExpenseUnit.ToString();     //경비 단가
+                        bid.Element("C19").Value = curObject.UnitPriceSum.ToString();    //합계 단가
+                        bid.Element("C20").Value = curObject.Material.ToString();    //재료비
+                        bid.Element("C21").Value = curObject.Labor.ToString();       //노무비
+                        bid.Element("C22").Value = curObject.Expense.ToString();     //경비
+                        bid.Element("C23").Value = curObject.PriceSum.ToString();    //합계
                     }
                 }
             }
@@ -345,7 +368,7 @@ namespace SetUnitPriceByExcel
                 {
                     foreach (var bid in eleBID)
                     {
-                        if (bid.Element("C24") != null && string.Concat(bid.Element("C4").Value) == "S")
+                        if (bid.Element("C9") != null && string.Concat(bid.Element("C5").Value) == "S")
                         {
                             var constNum = string.Concat(bid.Element("C1").Value);      //세부공사 번호
                             var numVal = string.Concat(bid.Element("C2").Value);        //세부공종 번호
@@ -355,22 +378,22 @@ namespace SetUnitPriceByExcel
                             {
                                 if (curObject.LaborUnit != 0)
                                 {
-                                    if ((Convert.ToDecimal(string.Concat(bid.Element("C18").Value)) * 1.5m) > (curObject.LaborUnit + divisionPrice))
+                                    if ((Convert.ToDecimal(string.Concat(bid.Element("C19").Value)) * 1.5m) > (curObject.LaborUnit + divisionPrice))
                                     {
                                         curObject.LaborUnit += divisionPrice;
-                                        bid.Element("C16").Value = curObject.LaborUnit.ToString();        //노무비 단가
-                                        bid.Element("C18").Value = curObject.UnitPriceSum.ToString();     //합계 단가
-                                        bid.Element("C20").Value = curObject.Labor.ToString();            //노무비
-                                        bid.Element("C22").Value = curObject.PriceSum.ToString();         //합계
+                                        bid.Element("C17").Value = curObject.LaborUnit.ToString();        //노무비 단가
+                                        bid.Element("C19").Value = curObject.UnitPriceSum.ToString();     //합계 단가
+                                        bid.Element("C21").Value = curObject.Labor.ToString();            //노무비
+                                        bid.Element("C23").Value = curObject.PriceSum.ToString();         //합계
                                         count++;
                                     }
 
                                     if (count == exCount)
                                     {   //절사, 반올림에 따른 부족분 조정
-                                        bid.Element("C16").Value = (deficiency + curObject.LaborUnit).ToString();       //노무비 단가
-                                        bid.Element("C18").Value = (deficiency + curObject.UnitPriceSum).ToString();    //합계 단가
-                                        bid.Element("C20").Value = (deficiency + curObject.Labor).ToString();           //노무비
-                                        bid.Element("C22").Value = (deficiency + curObject.PriceSum).ToString();        //합계
+                                        bid.Element("C17").Value = (deficiency + curObject.LaborUnit).ToString();       //노무비 단가
+                                        bid.Element("C19").Value = (deficiency + curObject.UnitPriceSum).ToString();    //합계 단가
+                                        bid.Element("C21").Value = (deficiency + curObject.Labor).ToString();           //노무비
+                                        bid.Element("C23").Value = (deficiency + curObject.PriceSum).ToString();        //합계
                                         break;
                                     }
                                 }
@@ -378,43 +401,43 @@ namespace SetUnitPriceByExcel
                                 {
                                     if (curObject.ExpenseUnit != 0)
                                     {
-                                        if ((Convert.ToDecimal(string.Concat(bid.Element("C18").Value)) * 1.5m) > (curObject.ExpenseUnit + divisionPrice))
+                                        if ((Convert.ToDecimal(string.Concat(bid.Element("C19").Value)) * 1.5m) > (curObject.ExpenseUnit + divisionPrice))
                                         {
                                             curObject.ExpenseUnit += divisionPrice;
-                                            bid.Element("C17").Value = curObject.ExpenseUnit.ToString();      //경비 단가
-                                            bid.Element("C18").Value = curObject.UnitPriceSum.ToString();     //합계 단가
-                                            bid.Element("C21").Value = curObject.Expense.ToString();          //경비
-                                            bid.Element("C22").Value = curObject.PriceSum.ToString();         //합계
+                                            bid.Element("C18").Value = curObject.ExpenseUnit.ToString();      //경비 단가
+                                            bid.Element("C19").Value = curObject.UnitPriceSum.ToString();     //합계 단가
+                                            bid.Element("C22").Value = curObject.Expense.ToString();          //경비
+                                            bid.Element("C23").Value = curObject.PriceSum.ToString();         //합계
                                             count++;
                                         }
 
                                         if (count == exCount)
                                         {   //절사, 반올림에 따른 부족분 조정
-                                            bid.Element("C17").Value = (deficiency + curObject.ExpenseUnit).ToString();     //경비 단가
-                                            bid.Element("C18").Value = (deficiency + curObject.UnitPriceSum).ToString();    //합계 단가
-                                            bid.Element("C21").Value = (deficiency + curObject.Expense).ToString();         //경비
-                                            bid.Element("C22").Value = (deficiency + curObject.PriceSum).ToString();        //합계
+                                            bid.Element("C18").Value = (deficiency + curObject.ExpenseUnit).ToString();     //경비 단가
+                                            bid.Element("C19").Value = (deficiency + curObject.UnitPriceSum).ToString();    //합계 단가
+                                            bid.Element("C22").Value = (deficiency + curObject.Expense).ToString();         //경비
+                                            bid.Element("C23").Value = (deficiency + curObject.PriceSum).ToString();        //합계
                                             break;
                                         }
                                     }
                                     else
                                     {
-                                        if ((Convert.ToDecimal(string.Concat(bid.Element("C18").Value)) * 1.5m) > (curObject.MaterialUnit + divisionPrice))
+                                        if ((Convert.ToDecimal(string.Concat(bid.Element("C19").Value)) * 1.5m) > (curObject.MaterialUnit + divisionPrice))
                                         {
                                             curObject.MaterialUnit += divisionPrice;
-                                            bid.Element("C15").Value = curObject.MaterialUnit.ToString();     //재료비 단가
-                                            bid.Element("C18").Value = curObject.UnitPriceSum.ToString();     //합계 단가
-                                            bid.Element("C19").Value = curObject.Material.ToString();         //재료비
-                                            bid.Element("C22").Value = curObject.PriceSum.ToString();         //합계
+                                            bid.Element("C16").Value = curObject.MaterialUnit.ToString();     //재료비 단가
+                                            bid.Element("C19").Value = curObject.UnitPriceSum.ToString();     //합계 단가
+                                            bid.Element("C20").Value = curObject.Material.ToString();         //재료비
+                                            bid.Element("C23").Value = curObject.PriceSum.ToString();         //합계
                                             count++;
                                         }
 
                                         if (count == exCount)
                                         {   //절사, 반올림에 따른 부족분 조정
-                                            bid.Element("C15").Value = (deficiency + curObject.MaterialUnit).ToString();    //재료비 단가
-                                            bid.Element("C18").Value = (deficiency + curObject.UnitPriceSum).ToString();    //합계 단가
-                                            bid.Element("C19").Value = (deficiency + curObject.Material).ToString();        //재료비
-                                            bid.Element("C22").Value = (deficiency + curObject.PriceSum).ToString();        //합계
+                                            bid.Element("C16").Value = (deficiency + curObject.MaterialUnit).ToString();    //재료비 단가
+                                            bid.Element("C19").Value = (deficiency + curObject.UnitPriceSum).ToString();    //합계 단가
+                                            bid.Element("C20").Value = (deficiency + curObject.Material).ToString();        //재료비
+                                            bid.Element("C23").Value = (deficiency + curObject.PriceSum).ToString();        //합계
                                             break;
                                         }
                                     }
@@ -427,10 +450,10 @@ namespace SetUnitPriceByExcel
 
             if ((keyFound == 1) && (exSum < TempExPrice))
             {
-                maxBid.Element("C16").Value = (Convert.ToDecimal(maxBid.Element("C16").Value) + TempExPrice - exSum).ToString();
-                maxBid.Element("C18").Value = (Convert.ToDecimal(maxBid.Element("C18").Value) + TempExPrice - exSum).ToString();
-                maxBid.Element("C20").Value = (Convert.ToDecimal(maxBid.Element("C20").Value) + TempExPrice - exSum).ToString();
-                maxBid.Element("C22").Value = (Convert.ToDecimal(maxBid.Element("C22").Value) + TempExPrice - exSum).ToString();
+                maxBid.Element("C17").Value = (Convert.ToDecimal(maxBid.Element("C17").Value) + TempExPrice - exSum).ToString();
+                maxBid.Element("C19").Value = (Convert.ToDecimal(maxBid.Element("C19").Value) + TempExPrice - exSum).ToString();
+                maxBid.Element("C21").Value = (Convert.ToDecimal(maxBid.Element("C21").Value) + TempExPrice - exSum).ToString();
+                maxBid.Element("C23").Value = (Convert.ToDecimal(maxBid.Element("C23").Value) + TempExPrice - exSum).ToString();
                 //소수부분 차이에 의한 99.7% 이하 위반 문제에 대한 처리 (노무비에 보정)
             }
         }
@@ -439,7 +462,7 @@ namespace SetUnitPriceByExcel
         {  //사정율 적용한 제요율적용제외 금액 저장
             foreach (var bid in eleBID)
             {
-                if (bid.Element("C24") != null && string.Concat(bid.Element("C4").Value) == "S")
+                if (bid.Element("C9") != null && string.Concat(bid.Element("C5").Value) == "S")
                 {
                     var constNum = string.Concat(bid.Element("C1").Value);      //세부공사 번호
                     var numVal = string.Concat(bid.Element("C2").Value);        //세부공종 번호
@@ -447,9 +470,9 @@ namespace SetUnitPriceByExcel
                     var curObject = Data.Dic[constNum].Find(x => x.WorkNum == numVal && x.DetailWorkNum == detailVal);
                     if (curObject.Item.Equals("제요율적용제외"))
                     {
-                        Data.AdjustedExMaterial += Convert.ToDecimal(string.Concat(bid.Element("C19").Value));
-                        Data.AdjustedExLabor += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
-                        Data.AdjustedExExpense += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.AdjustedExMaterial += Convert.ToDecimal(string.Concat(bid.Element("C20").Value));
+                        Data.AdjustedExLabor += Convert.ToDecimal(string.Concat(bid.Element("C21").Value));
+                        Data.AdjustedExExpense += Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
                     }
                 }
             }
@@ -459,15 +482,15 @@ namespace SetUnitPriceByExcel
         {  //BID 파일 내 원가계산서 관련 금액 세팅
             foreach (var bid in eleBID)
             {
-                if (bid.Element("C6") != null && string.Concat(bid.Element("C6").Value) == "6")
+                if (bid.Name == "T5")   //bid.Name이 T5인지를 확인함으로 간단하게 원가 계산서부분의 element 인지를 판별. Tag는 T3가 아닌 T5 기준을 따른다. (23.01.31 수정)
                 {
-                    if (string.Concat(bid.Element("C9").Value) != "이윤" && Data.Bidding.ContainsKey(string.Concat(bid.Element("C9").Value)))
+                    if (string.Concat(bid.Element("C4").Value) != "이윤" && Data.Bidding.ContainsKey(string.Concat(bid.Element("C4").Value)))
                     {
-                        bid.Element("C22").Value = Data.Bidding[string.Concat(bid.Element("C9").Value)].ToString();
+                        bid.Element("C8").Value = Data.Bidding[string.Concat(bid.Element("C4").Value)].ToString();
                     }
-                    else if (Data.Rate1.ContainsKey(string.Concat(bid.Element("C9").Value)))
+                    else if (Data.Rate1.ContainsKey(string.Concat(bid.Element("C4").Value)))
                     {
-                        bid.Element("C22").Value = Data.Bidding[string.Concat(bid.Element("C9").Value)].ToString();
+                        bid.Element("C8").Value = Data.Bidding[string.Concat(bid.Element("C4").Value)].ToString();
                     }
                 }
             }
@@ -531,7 +554,7 @@ namespace SetUnitPriceByExcel
             foreach (var bid in eleBID) //Dictionary 초기화
             {
                 //일반 항목인 경우
-                if (bid.Element("C24") != null && string.Concat(bid.Element("C4").Value) == "S")
+                if (bid.Element("C9") != null && string.Concat(bid.Element("C5").Value) == "S")
                 {
                     var constNum = string.Concat(bid.Element("C1").Value);      //세부공사 번호
                     var numVal = string.Concat(bid.Element("C2").Value);        //세부공종 번호
@@ -539,9 +562,9 @@ namespace SetUnitPriceByExcel
 
                     //현재 탐색 공종
                     var curObject = Data.Dic[constNum].Find(x => x.WorkNum == numVal && x.DetailWorkNum == detailVal);
-                    curObject.MaterialUnit = Convert.ToDecimal(string.Concat(bid.Element("C15").Value));
-                    curObject.LaborUnit = Convert.ToDecimal(string.Concat(bid.Element("C16").Value));
-                    curObject.ExpenseUnit = Convert.ToDecimal(string.Concat(bid.Element("C17").Value));
+                    curObject.MaterialUnit = Convert.ToDecimal(string.Concat(bid.Element("C16").Value));
+                    curObject.LaborUnit = Convert.ToDecimal(string.Concat(bid.Element("C17").Value));
+                    curObject.ExpenseUnit = Convert.ToDecimal(string.Concat(bid.Element("C18").Value));
                 }
             }
             Data.ExecuteReset = "0";    //Reset 함수 사용이 끝나면 다시 0으로 초기화
@@ -558,7 +581,7 @@ namespace SetUnitPriceByExcel
                 ApplyStandardPriceOption();
 
             GetFixedPriceRate();    //직공비 대비 고정금액 비중 계산
-            FindMyPercent();        //최저네고단가율 계산(D 값)
+            FindMyPercent();        //최저네고단가율 계산
             GetWeight();            //가중치 계산
             CalculateRate(Data.PersonalRate, Data.BalancedRate);    //Target Rate 계산
             Recalculation();    //사정율에 따른 재계산

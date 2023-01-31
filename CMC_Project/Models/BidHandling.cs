@@ -3,6 +3,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 
+//예외처리가 필요함 (23.01.31)
+
 namespace SetUnitPriceByExcel
 {
     class BidHandling
