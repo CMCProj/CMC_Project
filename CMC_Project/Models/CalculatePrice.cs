@@ -122,9 +122,9 @@ namespace SetUnitPriceByExcel
             decimal weight;
             decimal maxWeight = 0;
             decimal weightSum = 0;
-            DataT3 max = new DataT3();
+            Data max = new Data();
 
-            foreach (KeyValuePair<string, List<DataT3>> dic in Data.Dic)
+            foreach (KeyValuePair<string, List<Data>> dic in Data.Dic)
             {
                 foreach (var item in dic.Value)
                 {
@@ -157,7 +157,7 @@ namespace SetUnitPriceByExcel
             balancedUnitPriceRate = ((0.9m * unitPrice * (1.0m + balancedRate / 100.0m) * myPercent) / (1.0m - 0.1m * myPercent)) / 100;   //균형단가율
             targetRate = ((unitPrice * (1.0m + personalRate / 100.0m) * 0.9m + unitPrice * balancedUnitPriceRate * 0.1m) * myPercent) / 100;    //Target_Rate
         }
-        static void RoundOrTruncate(decimal Rate, DataT3 Object, ref decimal myMaterialUnit, ref decimal myLaborUnit, ref decimal myExpenseUnit)
+        static void RoundOrTruncate(decimal Rate, Data Object, ref decimal myMaterialUnit, ref decimal myLaborUnit, ref decimal myExpenseUnit)
         { //절사,반올림 옵션
             if (Data.UnitPriceTrimming.Equals("1"))
             {
