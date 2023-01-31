@@ -7,6 +7,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
+
 namespace SetUnitPriceByExcel
 {
     class Setting
@@ -16,14 +17,14 @@ namespace SetUnitPriceByExcel
 
         static void GetConstructionNum()    //세부 공사별 번호 저장
         {
-            //<T5> 요소의 자식 요소에 위치한 세부공사별 번호 저장
+            //<T5> 요소의 자식 요소에 위치한 세부공사별 번호 저장 --> <T2>로 변경
             var constNums = from t in eleBID
-                            where t.Name == "T5"
+                            where t.Name == "T2"
                             select t;
             foreach (var num in constNums)
             {
-                string index = string.Concat(num.Element("C1").Value);
-                string construction = string.Concat(num.Element("C2").Value);
+                string index = string.Concat(num.Element("C1").Value); // C1
+                string construction = string.Concat(num.Element("C3").Value); // ->C3로 변경
                 if (Data.ConstructionNums.ContainsValue(construction))
                     construction += "2";
                 Data.ConstructionNums.Add(index, construction);
@@ -43,21 +44,21 @@ namespace SetUnitPriceByExcel
         {
             //공내역 xml 파일 읽어들여 데이터 객체에 저장
             var works = from work in eleBID
-                        where work.Name == "T6"
+                        where work.Name == "T3" // T3로 변경
                         select new Data()
                         {
                             Item = GetItem(work),
                             ConstructionNum = string.Concat(work.Element("C1").Value), // 세부 공종 인덱스
                             WorkNum = string.Concat(work.Element("C2").Value), // 품목의 순서 인덱스
                             DetailWorkNum = string.Concat(work.Element("C3").Value), // 단락구분인덱스
-                            Code = string.Concat(work.Element("C24").Value), // 비품목, 품목 구분(G,S)
-                            Name = string.Concat(work.Element("C9").Value), // 품명
-                            Standard = string.Concat(work.Element("C10").Value), // 규격
-                            Unit = string.Concat(work.Element("C11").Value), // 단위
-                            Quantity = Convert.ToDecimal(work.Element("C13").Value), // 수량
-                            MaterialUnit = Convert.ToDecimal(work.Element("C15").Value), // 재료비 단가
-                            LaborUnit = Convert.ToDecimal(work.Element("C16").Value), // 노무비 단가
-                            ExpenseUnit = Convert.ToDecimal(work.Element("C17").Value), // 경비 단가
+                            Code = string.Concat(work.Element("C5").Value), // 비품목, 품목 구분(G,S) -> C5로 변경
+                            Name = string.Concat(work.Element("C12").Value), // 품명 -> C12로 변경
+                            Standard = string.Concat(work.Element("C13").Value), // 규격 -> C13으로 변경
+                            Unit = string.Concat(work.Element("C14").Value), // 단위 -> C14로 변경
+                            Quantity = Convert.ToDecimal(work.Element("C15").Value), // 수량 -> C15로 변경
+                            MaterialUnit = Convert.ToDecimal(work.Element("C16").Value), // 재료비 단가 -> C16으로 변경
+                            LaborUnit = Convert.ToDecimal(work.Element("C17").Value), // 노무비 단가 -> C17로 변경
+                            ExpenseUnit = Convert.ToDecimal(work.Element("C18").Value), // 경비 단가 -> C18로 변경
                         };
             //항목에 해당하는 세부공사의 리스트에 객체 추가
             foreach (var work in works)
@@ -70,41 +71,41 @@ namespace SetUnitPriceByExcel
         {
             string item = null;
             //해당 공종이 일반, 표준시장단가 및 공종(입력불가) 항목인 경우
-            if (string.Concat(bid.Element("C6").Value) == "0")
+            if (string.Concat(bid.Element("C7").Value) == "0")
             {
-                if (string.Concat(bid.Element("C4").Value) == "S")
+                if (string.Concat(bid.Element("C5").Value) == "S")
                 {
-                    if (string.Concat(bid.Element("C5").Value) == "0")
+                    if (string.Concat(bid.Element("C10").Value) != null)
                         item = "표준시장단가";
                     else
                         item = "일반";
                 }
-                else if (string.Concat(bid.Element("C4").Value) == "G")
+                else if (string.Concat(bid.Element("C5").Value) == "G")
                     item = "공종(입력불가)";
             }
             //해당 공종이 무대(입력불가)인 경우
-            else if (string.Concat(bid.Element("C6").Value) == "1")
+            else if (string.Concat(bid.Element("C7").Value) == "1")
                 item = "무대(입력불가)";
             //해당 공종이 관급자재인 경우
-            else if (string.Concat(bid.Element("C6").Value) == "2")
+            else if (string.Concat(bid.Element("C7").Value) == "2")
                 item = "관급자재";
             //해당 공종이 관급자재인 경우
-            else if (string.Concat(bid.Element("C6").Value) == "3")
+            else if (string.Concat(bid.Element("C7").Value) == "3")
                 item = "관급공종";
             //해당 공종이 PS인 경우
-            else if (string.Concat(bid.Element("C6").Value) == "4")
+            else if (string.Concat(bid.Element("C7").Value) == "4")
                 item = "PS";
             //해당 공종이 제요율적용제외공종인 경우
-            else if (string.Concat(bid.Element("C6").Value) == "5")
+            else if (string.Concat(bid.Element("C7").Value) == "5")
                 item = "제요율적용제외";
             //해당 공종이 제요율적용제외공종인 경우
-            else if (string.Concat(bid.Element("C6").Value) == "6")
+            else if (string.Concat(bid.Element("C7").Value) == "6")
                 item = "고정금액";
             //해당 공종이 음의 가격 공종인 경우
-            else if (string.Concat(bid.Element("C6").Value) == "7")
+            else if (string.Concat(bid.Element("C7").Value) == "7")
                 item = "PS내역";
             //해당 공종이 안전관리비인 경우
-            else if (string.Concat(bid.Element("C6").Value) == "9")
+            else if (string.Concat(bid.Element("C7").Value) == "20") // 9 -> 20으로 변경
                 item = "안전관리비";
             else
                 item = "예외";
@@ -229,8 +230,8 @@ namespace SetUnitPriceByExcel
             //복사한 단가 OutputDataFromBID.xml에 세팅
             foreach (var bid in eleBID)
             {
-                //단가를 가지는 항목에 단가 복사 (그렇다면 T6만 확인하면 되는게 아닌지???? 왜 T1부터 확인하는지???)
-                if (bid.Element("C24") != null && string.Concat(bid.Element("C4").Value) == "S")
+                //단가를 가지는 항목에 단가 복사
+                if (bid.Element("C9") != null && string.Concat(bid.Element("C5").Value) == "S")
                 {
                     var constNum = string.Concat(bid.Element("C1").Value);      //세부공사 번호
                     var numVal = string.Concat(bid.Element("C2").Value);        //공종 번호
@@ -239,14 +240,14 @@ namespace SetUnitPriceByExcel
 
                     if (curObject.Item == "일반" || curObject.Item == "제요율적용제외")
                     {
-                        bid.Element("C15").Value = curObject.MaterialUnit.ToString();    //재료비 단가
-                        bid.Element("C16").Value = curObject.LaborUnit.ToString();       //노무비 단가
-                        bid.Element("C17").Value = curObject.ExpenseUnit.ToString();     //경비 단가
-                        bid.Element("C18").Value = curObject.UnitPriceSum.ToString();    //합계 단가
-                        bid.Element("C19").Value = curObject.Material.ToString();    //재료비
-                        bid.Element("C20").Value = curObject.Labor.ToString();       //노무비
-                        bid.Element("C21").Value = curObject.Expense.ToString();     //경비
-                        bid.Element("C22").Value = curObject.PriceSum.ToString();    //합계
+                        bid.Element("C16").Value = curObject.MaterialUnit.ToString();    //재료비 단가
+                        bid.Element("C17").Value = curObject.LaborUnit.ToString();       //노무비 단가
+                        bid.Element("C18").Value = curObject.ExpenseUnit.ToString();     //경비 단가
+                        bid.Element("C19").Value = curObject.UnitPriceSum.ToString();    //합계 단가
+                        bid.Element("C20").Value = curObject.Material.ToString();    //재료비
+                        bid.Element("C21").Value = curObject.Labor.ToString();       //노무비
+                        bid.Element("C22").Value = curObject.Expense.ToString();     //경비
+                        bid.Element("C23").Value = curObject.PriceSum.ToString();    //합계
                     }
                 }
             }
@@ -270,32 +271,29 @@ namespace SetUnitPriceByExcel
             foreach (var bid in eleBID)
             {
                 //공사 기간 저장('일' 단위)
-                if (bid.Name == "T4")
+                if (bid.Name == "T1") // T4 -> T1으로 변경
                 {
-                    Data.ConstructionTerm = Convert.ToInt64(bid.Element("C28").Value); // 공사기간
+                    Data.ConstructionTerm = Convert.ToInt64(bid.Element("C29").Value); // 공사기간 -> C29로 변경
                 }
                 //고정금액 및 적용비율 1, 2 저장
-                if (bid.Element("C6") != null)
-                {
-                    var val = string.Concat(bid.Element("C6").Value);
-                    if (val == "6")
+                if (bid.Name == "T5")
+                { 
+                    var name = string.Concat(bid.Element("C4").Value);  //품명
+                    var val1 = string.Concat(bid.Element("C6").Value); //적용비율1 C13 -> C6
+                    var val2 = string.Concat(bid.Element("C7").Value); //적용비율2 C14 -> C7
+                    if (bid.Element("C5").Value == "7")
                     {
-                        var name = string.Concat(bid.Element("C9").Value);  //품명
-                        var val1 = string.Concat(bid.Element("C13").Value); //적용비율1
-                        var val2 = string.Concat(bid.Element("C14").Value); //적용비율2
-                        if (val1 == "0")
-                        {
-                            long fixedPrice = Convert.ToInt64(bid.Element("C22").Value);    //고정금액
-                            Data.Fixed.Add(name, fixedPrice);    //고정금액 딕셔너리에 추가
-                        }
-                        else
-                        {
-                            decimal applicationRate1 = Convert.ToDecimal(val1);    //적용비율 1
-                            decimal applicationRate2 = Convert.ToDecimal(val2);   //적용비율 2
-                            Data.Rate1.Add(name, applicationRate1);  //적용비율1 딕셔너리에 추가
-                            Data.Rate2.Add(name, applicationRate2);  //적용비율2 딕셔너리에 추가
-                        }
+                        long fixedPrice = Convert.ToInt64(bid.Element("C8").Value);    //고정금액
+                        Data.Fixed.Add(name, fixedPrice);    //고정금액 딕셔너리에 추가
                     }
+                    else
+                    {
+                        decimal applicationRate1 = Convert.ToDecimal(val1);    //적용비율 1
+                        decimal applicationRate2 = Convert.ToDecimal(val2);   //적용비율 2
+                        Data.Rate1.Add(name, applicationRate1);  //적용비율1 딕셔너리에 추가
+                        Data.Rate2.Add(name, applicationRate2);  //적용비율2 딕셔너리에 추가
+                    }
+                    
                 }
             }
         }
