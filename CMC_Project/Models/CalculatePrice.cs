@@ -502,7 +502,7 @@ namespace SetUnitPriceByExcel
         }
 
         static void SubstitutePrice()
-        {  //BID 파일 내 원가계산서 관련 금액 세팅 (보류)
+        {  //BID 파일 내 원가계산서 관련 금액 세팅
             foreach (var bid in eleBID)
             {
                 if (bid.Name == "T5")   //bid.Name이 T5인지를 확인함으로 간단하게 원가 계산서부분의 element 인지를 판별. Tag는 T3가 아닌 T5 기준을 따른다. (23.01.31 수정)

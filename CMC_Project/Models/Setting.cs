@@ -145,7 +145,7 @@ namespace SetUnitPriceByExcel
             Data.IsFileMatch = false;
         }
 
-        static void CopyFile(string filePath)   //실내역파일에서 읽은 데이터로 BID파일에 단가세팅
+        static void CopyFile(string filePath)   //실내역파일에서 읽은 데이터로 Data 객체에 단가세팅
         {
             var workbook = ExcelHandling.GetWorkbook(filePath, ".xlsx");    //get workbook
             var copySheetIndex = workbook.GetSheetIndex("내역서");          //data는 실내역서의 두 번째 sheet인 "내역서"에 위치
