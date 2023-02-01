@@ -51,7 +51,7 @@ namespace SetUnitPriceByExcel
                             ConstructionNum = string.Concat(work.Element("C1").Value), // 세부 공종 인덱스
                             WorkNum = string.Concat(work.Element("C2").Value), // 품목의 순서 인덱스
                             DetailWorkNum = string.Concat(work.Element("C3").Value), // 단락구분인덱스
-                            Code = string.Concat(work.Element("C10").Value), // 비품목, 품목 구분(G,S) -> C5로 변경
+                            Code = string.Concat(work.Element("C9").Value), // 비품목, 품목 구분(G,S) -> C5로 변경
                             Name = string.Concat(work.Element("C12").Value), // 품명 -> C12로 변경
                             Standard = string.Concat(work.Element("C13").Value), // 규격 -> C13으로 변경
                             Unit = string.Concat(work.Element("C14").Value), // 단위 -> C14로 변경
@@ -75,7 +75,7 @@ namespace SetUnitPriceByExcel
             {
                 if (string.Concat(bid.Element("C5").Value) == "S")
                 {
-                    if (string.Concat(bid.Element("C10").Value) != null)
+                    if (string.Concat(bid.Element("C10").Value) != "")
                         item = "표준시장단가";
                     else
                         item = "일반";
@@ -145,7 +145,7 @@ namespace SetUnitPriceByExcel
             Data.IsFileMatch = false;
         }
 
-        static void CopyFile(string filePath)   //실내역파일에서 읽은 데이터로 BID파일에 단가세팅
+        static void CopyFile(string filePath)   //실내역파일에서 읽은 데이터로 Data 객체에 단가세팅
         {
             var workbook = ExcelHandling.GetWorkbook(filePath, ".xlsx");    //get workbook
             var copySheetIndex = workbook.GetSheetIndex("내역서");          //data는 실내역서의 두 번째 sheet인 "내역서"에 위치

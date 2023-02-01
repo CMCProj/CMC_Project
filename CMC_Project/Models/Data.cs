@@ -2,6 +2,11 @@
 using System.IO;
 using System.Collections.Generic;
 
+/*
+ * 23.02.01 업데이트
+ * BalancedRate, PersonalRate값에 입력값이 반영되지 않는 사항 수정
+ */
+
 namespace SetUnitPriceByExcel
 {
     class Data
@@ -150,8 +155,24 @@ namespace SetUnitPriceByExcel
         public static string CostAccountDeduction { get; set; } = "2";     //원가계산 제경비 99.7% 적용
         public static string BidPriceRaise { get; set; } = "2";           //투찰금액 천원 절상
         public static string LaborCostLowBound { get; set; } = "2";        //노무비 하한 80%
-        public static decimal BalancedRate { get; set; }    //업체 평균 예측율
-        public static decimal PersonalRate { get; set; }    //내 예가 사정률
+ //     public static decimal BalancedRate { get; set; }  //업체 평균 예측율
+ //     public static decimal PersonalRate { get; set; }   //내 예가 사정률
+        
+        public static decimal BalancedRate
+        {
+            get
+            {
+                return Convert.ToDecimal(BalanceRateNum);  //입력받은 BalancedRateNum(double? 형)을 decimal로 바꿈
+            }
+        }    //업체 평균 예측율
+        public static decimal PersonalRate
+        {
+            get
+            {
+                return Convert.ToDecimal(PersonalRateNum);  //입력받은 PersonalRateNum(double? 형)을 decimal로 바꿈
+            }
+        }    //내 예가 사정률
+        
         public static string ExecuteReset { get; set; } = "0";   //Reset 함수 사용시 단가 소수처리 옵션과 별개로 소수 첫째자리 아래로 절사
     }
 }
