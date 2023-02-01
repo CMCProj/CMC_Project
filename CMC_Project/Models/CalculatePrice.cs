@@ -28,6 +28,14 @@ T5
     C22 -> C8
 ==================
 */
+/*
+ 23.01.31 업데이트2
+ --------------------
+  사업자등록번호 <T1></C17><T1>에 추가
+  SetBusinessInfo() 추가
+  Calculation() 내부에서 SetBusinessInfo() 호출 추가
+ --------------------
+ */
 
 namespace SetUnitPriceByExcel
 {
@@ -478,6 +486,19 @@ namespace SetUnitPriceByExcel
             }
         }
 
+        public static void SetBusinessInfo()
+        {
+            
+            foreach (var bid in eleBID)
+            {
+                if (bid.Name == "T1")
+                {
+                    bid.Element("C17").Value = Data.CompanyRegistrationNum.ToString();
+                }
+            }
+
+        }
+
         static void SubstitutePrice()
         {  //BID 파일 내 원가계산서 관련 금액 세팅 (보류)
             foreach (var bid in eleBID)
@@ -593,6 +614,7 @@ namespace SetUnitPriceByExcel
             }
 
             FillCostAccount.CalculateBiddingCosts();    //원가계산서 사정율적용(입찰) 금액 계산 및 저장
+            SetBusinessInfo();      //사업자등록번호 <T1></C17></T1>에 추가
             SubstitutePrice();      //원가계산서 사정율 적용하여 계산한 금액들 BID 파일에도 반영
             CreateFile();           //입찰내역 파일 생성
         }
