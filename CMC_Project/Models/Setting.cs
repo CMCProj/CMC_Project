@@ -98,11 +98,13 @@ namespace SetUnitPriceByExcel
             //해당 공종이 제요율적용제외공종인 경우
             else if (string.Concat(bid.Element("C7").Value) == "5")
                 item = "제요율적용제외";
+
             //해당 공종이 제요율적용제외공종인 경우
-            else if (string.Concat(bid.Element("C7").Value) == "6")
-                item = "고정금액";
+            //else if (string.Concat(bid.Element("C7").Value) == "6")//해당 항목은 적용비율 항목으로 T5에 있음
+              //  item = "고정금액";
+
             //해당 공종이 음의 가격 공종인 경우
-            else if (string.Concat(bid.Element("C7").Value) == "7")
+            else if (string.Concat(bid.Element("C7").Value) == "19") //7->19로 변경
                 item = "PS내역";
             //해당 공종이 안전관리비인 경우
             else if (string.Concat(bid.Element("C7").Value) == "20") // 9 -> 20으로 변경
@@ -145,7 +147,7 @@ namespace SetUnitPriceByExcel
             Data.IsFileMatch = false;
         }
 
-        static void CopyFile(string filePath)   //실내역파일에서 읽은 데이터로 Data 객체에 단가세팅
+        static void CopyFile(string filePath)   //실내역파일에서 읽은 데이터로 BID파일에 단가세팅
         {
             var workbook = ExcelHandling.GetWorkbook(filePath, ".xlsx");    //get workbook
             var copySheetIndex = workbook.GetSheetIndex("내역서");          //data는 실내역서의 두 번째 sheet인 "내역서"에 위치

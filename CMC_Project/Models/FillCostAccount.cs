@@ -251,7 +251,6 @@ namespace SetUnitPriceByExcel
         //원가계산서 항목별 입찰금액 구하여 Bidding에 저장
         public static void CalculateBiddingCosts()
         {
-            Console.WriteLine("World!!!");
             //직공비
             Data.Bidding["직공비"] = ToLong(Data.RealDirectMaterial + Data.RealDirectLabor + Data.RealOutputExpense);
             //적용비율 2를 적용한 금액 계산
