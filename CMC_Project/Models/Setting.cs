@@ -23,8 +23,8 @@ namespace SetUnitPriceByExcel
                             select t;
             foreach (var num in constNums)
             {
-                string index = string.Concat(num.Element("C1").Value); // C1
-                string construction = string.Concat(num.Element("C3").Value); // ->C3로 변경
+                string index = string.Concat(num.Element("C1").Value); 
+                string construction = string.Concat(num.Element("C2").Value);
                 if (Data.ConstructionNums.ContainsValue(construction))
                     construction += "2";
                 Data.ConstructionNums.Add(index, construction);
@@ -44,21 +44,21 @@ namespace SetUnitPriceByExcel
         {
             //공내역 xml 파일 읽어들여 데이터 객체에 저장
             var works = from work in eleBID
-                        where work.Name == "T3" // T3로 변경
+                        where work.Name == "T3" 
                         select new Data()
                         {
                             Item = GetItem(work),
                             ConstructionNum = string.Concat(work.Element("C1").Value), // 세부 공종 인덱스
                             WorkNum = string.Concat(work.Element("C2").Value), // 품목의 순서 인덱스
                             DetailWorkNum = string.Concat(work.Element("C3").Value), // 단락구분인덱스
-                            Code = string.Concat(work.Element("C10").Value), // 비품목, 품목 구분(G,S) -> C5로 변경
-                            Name = string.Concat(work.Element("C12").Value), // 품명 -> C12로 변경
-                            Standard = string.Concat(work.Element("C13").Value), // 규격 -> C13으로 변경
-                            Unit = string.Concat(work.Element("C14").Value), // 단위 -> C14로 변경
-                            Quantity = Convert.ToDecimal(work.Element("C15").Value), // 수량 -> C15로 변경
-                            MaterialUnit = Convert.ToDecimal(work.Element("C16").Value), // 재료비 단가 -> C16으로 변경
-                            LaborUnit = Convert.ToDecimal(work.Element("C17").Value), // 노무비 단가 -> C17로 변경
-                            ExpenseUnit = Convert.ToDecimal(work.Element("C18").Value), // 경비 단가 -> C18로 변경
+                            Code = string.Concat(work.Element("C9").Value), // 원설계코드 C24 -> C9로 변경
+                            Name = string.Concat(work.Element("C12").Value), // 품명 C9 -> C12로 변경
+                            Standard = string.Concat(work.Element("C13").Value), // 규격 C10 -> C13으로 변경
+                            Unit = string.Concat(work.Element("C14").Value), // 단위 C11 -> C14로 변경
+                            Quantity = Convert.ToDecimal(work.Element("C15").Value), // 수량 C13 -> C15로 변경
+                            MaterialUnit = Convert.ToDecimal(work.Element("C16").Value), // 재료비 단가 C15 -> C16으로 변경
+                            LaborUnit = Convert.ToDecimal(work.Element("C17").Value), // 노무비 단가 C16 -> C17로 변경
+                            ExpenseUnit = Convert.ToDecimal(work.Element("C18").Value), // 경비 단가 C17 -> C18로 변경
                         };
             //항목에 해당하는 세부공사의 리스트에 객체 추가
             foreach (var work in works)
@@ -75,7 +75,7 @@ namespace SetUnitPriceByExcel
             {
                 if (string.Concat(bid.Element("C5").Value) == "S")
                 {
-                    if (string.Concat(bid.Element("C10").Value) != null)
+                    if (string.Concat(bid.Element("C10").Value) != "")
                         item = "표준시장단가";
                     else
                         item = "일반";
@@ -170,7 +170,7 @@ namespace SetUnitPriceByExcel
                 while (true)
                 {
                     var row = sheet.GetRow(rowIndex);
-                    var code = row.GetCell(1).StringCellValue; // rhd
+                    var code = row.GetCell(1).StringCellValue; 
                     var name = row.GetCell(4).StringCellValue;
                     var unit = row.GetCell(6).StringCellValue;
                     decimal quantity = 0.0m;
@@ -273,7 +273,7 @@ namespace SetUnitPriceByExcel
                 //공사 기간 저장('일' 단위)
                 if (bid.Name == "T1") // T4 -> T1으로 변경
                 {
-                    Data.ConstructionTerm = Convert.ToInt64(bid.Element("C29").Value); // 공사기간 -> C29로 변경
+                    Data.ConstructionTerm = Convert.ToInt64(bid.Element("C29").Value); // 공사기간 C28 -> C29로 변경
                 }
                 //고정금액 및 적용비율 1, 2 저장
                 if (bid.Name == "T5")
