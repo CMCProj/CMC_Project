@@ -51,7 +51,7 @@ namespace SetUnitPriceByExcel
                             ConstructionNum = string.Concat(work.Element("C1").Value), // 세부 공종 인덱스
                             WorkNum = string.Concat(work.Element("C2").Value), // 품목의 순서 인덱스
                             DetailWorkNum = string.Concat(work.Element("C3").Value), // 단락구분인덱스
-                            Code = string.Concat(work.Element("C10").Value), // 비품목, 품목 구분(G,S) -> C5로 변경
+                            Code = string.Concat(work.Element("C9").Value), // 비품목, 품목 구분(G,S) -> C5로 변경
                             Name = string.Concat(work.Element("C12").Value), // 품명 -> C12로 변경
                             Standard = string.Concat(work.Element("C13").Value), // 규격 -> C13으로 변경
                             Unit = string.Concat(work.Element("C14").Value), // 단위 -> C14로 변경
@@ -75,7 +75,7 @@ namespace SetUnitPriceByExcel
             {
                 if (string.Concat(bid.Element("C5").Value) == "S")
                 {
-                    if (string.Concat(bid.Element("C10").Value) != null)
+                    if (string.Concat(bid.Element("C10").Value) != "")
                         item = "표준시장단가";
                     else
                         item = "일반";
@@ -98,11 +98,13 @@ namespace SetUnitPriceByExcel
             //해당 공종이 제요율적용제외공종인 경우
             else if (string.Concat(bid.Element("C7").Value) == "5")
                 item = "제요율적용제외";
+
             //해당 공종이 제요율적용제외공종인 경우
-            else if (string.Concat(bid.Element("C7").Value) == "6")
-                item = "고정금액";
+            //else if (string.Concat(bid.Element("C7").Value) == "6")//해당 항목은 적용비율 항목으로 T5에 있음
+              //  item = "고정금액";
+
             //해당 공종이 음의 가격 공종인 경우
-            else if (string.Concat(bid.Element("C7").Value) == "7")
+            else if (string.Concat(bid.Element("C7").Value) == "19") //7->19로 변경
                 item = "PS내역";
             //해당 공종이 안전관리비인 경우
             else if (string.Concat(bid.Element("C7").Value) == "20") // 9 -> 20으로 변경

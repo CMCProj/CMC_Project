@@ -112,6 +112,7 @@ namespace SetUnitPriceByExcel
             var fixCostSum = Data.InvestigateFixedPriceDirectMaterial + Data.InvestigateFixedPriceDirectLabor + Data.InvestigateFixedPriceOutputExpense;
 
             Data.FixedPricePercent = (fixCostSum / directConstPrice) * 100; // 고정금액 비중 계산
+            var temp = 0;
         }
 
         static void FindMyPercent() //고정금액 비중에 따른 최저네고단가율 계산
@@ -164,6 +165,7 @@ namespace SetUnitPriceByExcel
             decimal unitPrice = 100;
             balancedUnitPriceRate = ((0.9m * unitPrice * (1.0m + balancedRate / 100.0m) * myPercent) / (1.0m - 0.1m * myPercent)) / 100;   //균형단가율
             targetRate = ((unitPrice * (1.0m + personalRate / 100.0m) * 0.9m + unitPrice * balancedUnitPriceRate * 0.1m) * myPercent) / 100;    //Target_Rate
+            var temp = 0;
         }
         static void RoundOrTruncate(decimal Rate, Data Object, ref decimal myMaterialUnit, ref decimal myLaborUnit, ref decimal myExpenseUnit)
         { //절사,반올림 옵션
@@ -500,7 +502,7 @@ namespace SetUnitPriceByExcel
         }
 
         static void SubstitutePrice()
-        {  //BID 파일 내 원가계산서 관련 금액 세팅 (보류)
+        {  //BID 파일 내 원가계산서 관련 금액 세팅
             foreach (var bid in eleBID)
             {
                 if (bid.Name == "T5")   //bid.Name이 T5인지를 확인함으로 간단하게 원가 계산서부분의 element 인지를 판별. Tag는 T3가 아닌 T5 기준을 따른다. (23.01.31 수정)
