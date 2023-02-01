@@ -7,6 +7,12 @@ using System.Collections.Generic;
  * BalancedRate, PersonalRate값에 입력값이 반영되지 않는 사항 수정
  */
 
+/*
+ 23.01.31 업데이트
+ --------------------
+  CompanyRegistrationNum 추가(사업자등록번호)
+ --------------------
+*/
 namespace SetUnitPriceByExcel
 {
     class Data
@@ -21,6 +27,7 @@ namespace SetUnitPriceByExcel
         public static bool IsConvert = false; // 변환을 했는지 안했는지
         public static bool IsBidFileOk = true; // 정상적인 공내역 파일인지
         public static bool IsFileMatch = true; // 공내역 파일과 실내역 파일의 공사가 일치하는지
+        public static double? CompanyRegistrationNum; //1.31 사업자등록번호 추가
         public static double? PersonalRateNum; //
         public static double? BalanceRateNum; // 사정율 출력용 변수
 
@@ -155,9 +162,6 @@ namespace SetUnitPriceByExcel
         public static string CostAccountDeduction { get; set; } = "2";     //원가계산 제경비 99.7% 적용
         public static string BidPriceRaise { get; set; } = "2";           //투찰금액 천원 절상
         public static string LaborCostLowBound { get; set; } = "2";        //노무비 하한 80%
- //     public static decimal BalancedRate { get; set; }  //업체 평균 예측율
- //     public static decimal PersonalRate { get; set; }   //내 예가 사정률
-        
         public static decimal BalancedRate
         {
             get
