@@ -39,7 +39,7 @@ namespace SetUnitPriceByExcel
         // Workbook 읽어드리기
         static public IWorkbook GetWorkbook(string filename, string version)
         {
-            using FileStream? stream = new(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            using FileStream? stream = new(filename, FileMode.Open, FileAccess.ReadWrite);
             //표준 xls 버전
             if (".xls".Equals(version))
             {
