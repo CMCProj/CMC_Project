@@ -495,7 +495,7 @@ namespace SetUnitPriceByExcel
             {
                 if (bid.Name == "T1")
                 {
-                    bid.Element("C17").Value = Data.CompanyRegistrationNum.ToString();
+                    bid.Element("C17").Value = Data.CompanyRegistrationNum;
                 }
             }
 
