@@ -8,11 +8,27 @@ using System.Collections.Generic;
   CompanyRegistrationNum 추가(사업자등록번호)
  --------------------
 */
+/*
+ 23.02.01 업데이트
+ --------------------
+ BalancedRate, PersonalRate값에 입력값이 반영되지 않는 사항 수정
+ --------------------
+*/
+/*
+ 23.02.02 업데이트
+ --------------------
+ 작업 폴더 경로 수정
+ folder : Environment.SpecialFolder.Desktop -> Environment.SpecialFolder.MyDocuments + "\\AutoBID"
+ work_path : Environment.SpecialFolder.Desktop + "\\WORK DIRECTORY" -> Environment.SpecialFolder.MyDocuments + "\\AutoBID\\WORK DIRECTORY"
+ 작업 폴더가 [바탕화면]에서 [내 문서\\AutoBID]로 변경됨에 따라 desktop_path 변수는 더 이상 사용되지 않는다.
+ --------------------
+*/
+
 namespace SetUnitPriceByExcel
 {
     class Data
     {
-        public static String folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        public static string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\AutoBID";  //내 문서 폴더의 AutoBID 폴더로 지정 (23.02.02)
         // WPF 앱 파일 관리 변수
         public static string XlsText;
         public static IReadOnlyList<FileStream> XlsFiles;
@@ -28,8 +44,8 @@ namespace SetUnitPriceByExcel
         public static double? BalanceRateNum; // 사정율 출력용 변수
 
 
-        public static string desktop_path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);  //바탕화면 경로
-        public static string work_path = Path.Combine(desktop_path, "WORK DIRECTORY");   //작업폴더(WORK DIRECTORY) 경로
+        //public static string desktop_path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);  //바탕화면 경로 / 사용 안함 (23.02.02)
+        public static string work_path = Path.Combine(folder, "WORK DIRECTORY");   //작업폴더(WORK DIRECTORY) 경로 / 폴더 경로 수정 (23.02.02)
 
         private decimal materialUnit;   //재료비 단가
         private decimal laborUnit;      //노무비 단가
@@ -158,8 +174,21 @@ namespace SetUnitPriceByExcel
         public static string CostAccountDeduction { get; set; } = "2";     //원가계산 제경비 99.7% 적용
         public static string BidPriceRaise { get; set; } = "2";           //투찰금액 천원 절상
         public static string LaborCostLowBound { get; set; } = "2";        //노무비 하한 80%
-        public static decimal BalancedRate { get; set; }    //업체 평균 예측율
-        public static decimal PersonalRate { get; set; }    //내 예가 사정률
+        public static decimal BalancedRate
+        {
+            get
+            {
+                return Convert.ToDecimal(BalanceRateNum);  //입력받은 BalancedRateNum(double? 형)을 decimal로 바꿈
+            }
+        }    //업체 평균 예측율
+        public static decimal PersonalRate
+        {
+            get
+            {
+                return Convert.ToDecimal(PersonalRateNum);  //입력받은 PersonalRateNum(double? 형)을 decimal로 바꿈
+            }
+        }    //내 예가 사정률
+        
         public static string ExecuteReset { get; set; } = "0";   //Reset 함수 사용시 단가 소수처리 옵션과 별개로 소수 첫째자리 아래로 절사
     }
 }

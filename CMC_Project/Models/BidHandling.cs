@@ -3,29 +3,36 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 
-//예외처리가 필요함 (23.01.31)
+//예외 처리가 필요함 (23.01.31)
+//예외 처리는 ConvertionPage.xaml.cs의 ConvertButtonClick()에서 처리됨 (23.02.02)
+/*
+ 23.02.02 업데이트
+ --------------------
+ 작업 폴더 경로 수정
+ --------------------
+*/
 
 namespace SetUnitPriceByExcel
 {
     class BidHandling
     {
-        String folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        //String folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop); 사용 안함 (23.02.02)
         public static string filename;
 
         public static void BidToXml()
         {
-            String copiedFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\EmptyBid"; // EmptyBid폴더 주소 저장
-            //예외처리가 필요함
+            string copiedFolder = Data.folder + "\\EmptyBid"; // EmptyBid폴더 주소 저장 / 폴더 경로 수정 (23.02.02)
             string[] bidFile = Directory.GetFiles(copiedFolder, "*.BID");
             string myfile = bidFile[0];
             filename = Path.GetFileNameWithoutExtension(bidFile[0]);
             File.Move(myfile, Path.ChangeExtension(myfile, ".zip"));
+
             ZipFile.ExtractToDirectory(Path.Combine(copiedFolder, filename + ".zip"), copiedFolder);
             string[] files = Directory.GetFiles(copiedFolder, "*.BID");
             string text = File.ReadAllText(files[0]); // 텍스트 읽기
             byte[] decodeValue = Convert.FromBase64String(text);  // base64 변환
             text = Encoding.UTF8.GetString(decodeValue);   // UTF-8로 디코딩
-            File.WriteAllText(Path.Combine(Data.folder, "OutputDataFromBID.xml"), text, Encoding.UTF8);
+            File.WriteAllText(Path.Combine(Data.folder, "OutputDataFromBID.xml"), text, Encoding.UTF8); //폴더 경로 수정 (23.02.02)
 
             //실내역 데이터 복사 및 단가 세팅 & 직공비 고정금액 비중 계산
             Setting.GetData();

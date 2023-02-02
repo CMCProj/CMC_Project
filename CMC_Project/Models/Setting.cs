@@ -7,6 +7,12 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
+/*
+ 23.02.02 업데이트
+ --------------------
+ 작업 폴더 경로 수정
+ --------------------
+*/
 
 namespace SetUnitPriceByExcel
 {
@@ -215,7 +221,7 @@ namespace SetUnitPriceByExcel
 
         static void SetUnitPrice()
         {
-            String copiedFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\Actual Xlsx";
+            string copiedFolder = Data.folder + "\\Actual Xlsx";    //폴더 경로 수정 (23.02.02)
             DirectoryInfo dir = new DirectoryInfo(copiedFolder);
             FileInfo[] files = dir.GetFiles();
 

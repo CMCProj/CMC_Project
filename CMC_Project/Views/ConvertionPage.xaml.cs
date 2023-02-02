@@ -10,6 +10,13 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
+/*
+ 23.02.02 업데이트
+ --------------------
+ 작업 폴더 경로 수정
+ --------------------
+*/
+
 namespace CMC_Project.Views
 {
     /// <summary>
@@ -58,28 +65,41 @@ namespace CMC_Project.Views
             if (openFileDialog.ShowDialog() == true) // 파일을 정상적으로 업로드 한 경우
             {
                 // 복사 파일 저장 폴더 생성
-                String copiedFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\EmptyBid";
-                String copiedFolder2 = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\WORK DIRECTORY";
+                string rootFolderAutoBID = Data.folder;  //폴더 경로 수정 (23.02.02)
+                string copiedFolder = rootFolderAutoBID + "\\EmptyBid"; //폴더 경로 수정 (23.02.02)
+                string copiedFolder2 = rootFolderAutoBID + "\\WORK DIRECTORY";  //폴더 경로 수정 (23.02.02)
 
-                if (!Directory.Exists(copiedFolder)) // 이미 폴더가 있지 않은 경우
+                if (!Directory.Exists(rootFolderAutoBID)) // 이미 폴더가 있지 않은 경우 / 폴더 경로를 기존의 [\\EmptyBid]에서 [내 문서\\AutoBID]로 변경 (23.02.02)
                 {
+                    //-----[AutoBID] 폴더 생성 및 권한, access control 설정 (23.02.02)-----
+                    // directory permission
+                    Directory.CreateDirectory(rootFolderAutoBID);
+                    DirectoryInfo infoRoot = new DirectoryInfo(rootFolderAutoBID);
+                    infoRoot.Attributes &= ~FileAttributes.ReadOnly; // not read only 
+                    // access control
+                    DirectorySecurity securityRoot = infoRoot.GetAccessControl();
+                    securityRoot.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+                    infoRoot.SetAccessControl(securityRoot);
+
+                    //-----[AutoBID\\EmptyBid] 폴더 생성 및 권한, access control 설정 (23.02.02)-----
                     // directory permission
                     Directory.CreateDirectory(copiedFolder);
-                    DirectoryInfo info = new DirectoryInfo(copiedFolder);
-                    info.Attributes &= ~FileAttributes.ReadOnly; // not read only 
+                    DirectoryInfo infoCopied = new DirectoryInfo(copiedFolder);
+                    infoCopied.Attributes &= ~FileAttributes.ReadOnly; // not read only 
                     // access control
-                    DirectorySecurity security = info.GetAccessControl();
-                    security.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
-                    info.SetAccessControl(security);
+                    DirectorySecurity securityCopied = infoCopied.GetAccessControl();
+                    securityCopied.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+                    infoCopied.SetAccessControl(securityCopied);
 
+                    //-----[AutoBID\\WORK DIRECTORY] 폴더 생성 및 권한, access control 설정 (23.02.02)-----
                     // directory permission
                     Directory.CreateDirectory(copiedFolder2);
-                    DirectoryInfo info2 = new DirectoryInfo(copiedFolder2);
-                    info2.Attributes &= ~FileAttributes.ReadOnly; // not read only 
+                    DirectoryInfo infoCopied2 = new DirectoryInfo(copiedFolder2);
+                    infoCopied2.Attributes &= ~FileAttributes.ReadOnly; // not read only 
                     // access control
-                    DirectorySecurity security2 = info.GetAccessControl();
+                    DirectorySecurity security2 = infoCopied2.GetAccessControl();
                     security2.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
-                    info2.SetAccessControl(security2);
+                    infoCopied2.SetAccessControl(security2);
 
                     FileStream file;
 
@@ -103,7 +123,7 @@ namespace CMC_Project.Views
                 }
                 else
                 {
-                    DisplayDialog("Empty BID 폴더가 이미 존재합니다.", openFileDialog.FileName);
+                    DisplayDialog("AutoBID 폴더가 이미 존재합니다.", openFileDialog.FileName);    //[\\EmptyBid]폴더가 아닌 [내 문서\\AutoBID]폴더가 있는지 확인 (23.02.02)
                     Data.CanCovertFile = false;
                     Data.IsConvert = false;
                 }
@@ -125,54 +145,64 @@ namespace CMC_Project.Views
 
             if (openFileDialog.ShowDialog() == true)
             {
-                String copiedFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\Actual Xlsx";
+                string rootFolderAutoBID = Data.folder;  //폴더 경로 수정 (23.02.02)
+                string copiedFolder = rootFolderAutoBID + "\\Actual Xlsx";  //폴더 경로 수정 (23.02.02)
                 StringBuilder output = new StringBuilder();
 
-                if (!Directory.Exists(copiedFolder)) // 이미 폴더가 있지 않은 경우
+                if (Directory.Exists(rootFolderAutoBID))    //AutoBID 폴더가 존재하는 경우를 먼저 확인한다. (23.02.02)
                 {
-
-                    // directory permission
-                    Directory.CreateDirectory(copiedFolder);
-                    DirectoryInfo info = new DirectoryInfo(copiedFolder);
-                    info.Attributes &= ~FileAttributes.ReadOnly; // not read only 
-
-                    // access control
-                    DirectorySecurity security = info.GetAccessControl();
-                    security.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
-                    info.SetAccessControl(security);
-
-                    int filenum = openFileDialog.FileNames.Length;
-                    List<FileStream> files = new List<FileStream>(new FileStream[filenum]);
-                    int count = 0;
-
-                    foreach (string filepath in openFileDialog.FileNames)
+                    if (!Directory.Exists(copiedFolder)) // 이미 폴더가 있지 않은 경우
                     {
-                        String filename = System.IO.Path.GetFileName(filepath);
-                        output.Append(filename + "\n");
-                        // 파일 복사
 
-                        using (FileStream SourceStream = File.Open(filepath, FileMode.Open))
+                        // directory permission
+                        Directory.CreateDirectory(copiedFolder);
+                        DirectoryInfo info = new DirectoryInfo(copiedFolder);
+                        info.Attributes &= ~FileAttributes.ReadOnly; // not read only 
+
+                        // access control
+                        DirectorySecurity security = info.GetAccessControl();
+                        security.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+                        info.SetAccessControl(security);
+
+                        int filenum = openFileDialog.FileNames.Length;
+                        List<FileStream> files = new List<FileStream>(new FileStream[filenum]);
+                        int count = 0;
+
+                        foreach (string filepath in openFileDialog.FileNames)
                         {
-                            using (FileStream DestinationStream = File.Create(copiedFolder + "\\" + filename))
+                            String filename = System.IO.Path.GetFileName(filepath);
+                            output.Append(filename + "\n");
+                            // 파일 복사
+
+                            using (FileStream SourceStream = File.Open(filepath, FileMode.Open))
                             {
-                                await SourceStream.CopyToAsync(DestinationStream);
-                                files[count] = DestinationStream;
+                                using (FileStream DestinationStream = File.Create(copiedFolder + "\\" + filename))
+                                {
+                                    await SourceStream.CopyToAsync(DestinationStream);
+                                    files[count] = DestinationStream;
+                                }
                             }
+                            count++;
                         }
-                        count++;
+
+                        Data.XlsFiles = files;
+                        Data.XlsText = output.ToString();
+                        XlsList.Text = Data.XlsText;
+
+                        Data.CanCovertFile = true;
+                        Data.IsConvert = false;
+                        count = 0;
                     }
-
-                    Data.XlsFiles = files;
-                    Data.XlsText = output.ToString();
-                    XlsList.Text = Data.XlsText;
-
-                    Data.CanCovertFile = true;
-                    Data.IsConvert = false;
-                    count = 0;
+                    else
+                    {
+                        DisplayDialog("Actual Xlsx 폴더가 이미 존재합니다.", "Error");
+                        Data.CanCovertFile = false;
+                        Data.IsConvert = false;
+                    }
                 }
-                else
+                else   //AutoBID 폴더가 없는 경우 (23.02.02)
                 {
-                    DisplayDialog("Actual Xlsx 폴더가 이미 존재합니다.", "Error");
+                    DisplayDialog("공내역서를 먼저 업로드 해주세요.", "Error");
                     Data.CanCovertFile = false;
                     Data.IsConvert = false;
                 }

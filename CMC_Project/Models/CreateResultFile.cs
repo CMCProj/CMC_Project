@@ -1,6 +1,13 @@
 using System.Collections.Generic;
 using System.IO;
 
+/*
+ 23.02.02 업데이트
+ --------------------
+ 작업 폴더 경로 수정
+ --------------------
+*/
+
 namespace SetUnitPriceByExcel
 {
     class CreateResultFile
@@ -60,7 +67,7 @@ namespace SetUnitPriceByExcel
 
                 //세부 공사별로 입찰내역 파일 저장
                 resultPath = "입찰내역_" + Data.ConstructionNums[dic.Key] + ".xls";
-                path = Path.Combine(Data.desktop_path, resultPath);
+                path = Path.Combine(Data.folder, resultPath);   //폴더 경로 수정 (23.02.02)
                 ExcelHandling.WriteExcel(workbook, path);
             }
         }
