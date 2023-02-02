@@ -5,6 +5,11 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 /*
+ 23.02.01 업데이트
+ --------------------
+  사정율에 음의 값 입력 가능하도록 수정
+  사정율, 사업자등록번호 값 검토 추가
+ --------------------
  23.01.31 업데이트
  --------------------
   UI 수정
@@ -68,7 +73,7 @@ namespace CMC_Project.Views
             TextBox BusinessInfo = sender as TextBox;
             int selectionStart = BusinessInfo.SelectionStart;
             string result = string.Empty;
-            Data.CompanyRegistrationNum = (Double.Parse(BusinessInfo.GetLineText(0)));
+            //Data.CompanyRegistrationNum = (Double.Parse(BusinessInfo.GetLineText(0)));
 
             foreach (char character in BusinessInfo.Text.ToCharArray())
             {
@@ -86,18 +91,25 @@ namespace CMC_Project.Views
             TextBox averageRating = sender as TextBox;
             int selectionStart = averageRating.SelectionStart;
             string result = string.Empty;
-            int count = 0;
-            Data.BalanceRateNum = (Double.Parse(averageRating.GetLineText(0)));
+            int dCount = 0;
+            int mCount = 0;
+            //Data.BalanceRateNum = (Double.Parse(averageRating.GetLineText(0)));
 
             foreach (char character in averageRating.Text.ToCharArray())
             {
-                if (char.IsDigit(character) || char.IsControl(character) || (character == '.' && count == 0))
+                if (char.IsDigit(character) || char.IsControl(character) || (character == '.' && dCount == 0) 
+                    || (character =='-' && mCount == 0 ))
                 {
                     result += character;
                     if (character == '.')
                     {
-                        count += 1;
+                        dCount += 1;
                     }
+                    else if (character == '-')
+                    {
+                        mCount +=1;
+                    }
+
                 }
             }
             averageRating.Text = result;
@@ -110,21 +122,28 @@ namespace CMC_Project.Views
             TextBox estimateRating = sender as TextBox;
             int selectionStart = estimateRating.SelectionStart;
             string result = string.Empty;
-            int count = 0;
-            Data.PersonalRateNum = (Double.Parse(estimateRating.GetLineText(0)));
+            int dCount = 0;
+            int mCount = 0;
+            //Data.PersonalRateNum = (Double.Parse(estimateRating.GetLineText(0)));
 
 
             foreach (char character in estimateRating.Text.ToCharArray())
             {
-                if (char.IsDigit(character) || char.IsControl(character) || (character == '.' && count == 0))
+                if (char.IsDigit(character) || char.IsControl(character) || (character == '.' && dCount == 0)
+                    || (character == '-' && mCount == 0))
                 {
                     result += character;
                     if (character == '.')
                     {
-                        count += 1;
+                        dCount += 1;
+                    }
+                    else if (character == '-')
+                    {
+                        mCount += 1;
                     }
                 }
             }
+            
             estimateRating.Text = result;
             estimateRating.SelectionStart = selectionStart <= estimateRating.Text.Length ? selectionStart : estimateRating.Text.Length;
         }
@@ -214,14 +233,13 @@ namespace CMC_Project.Views
 
         private void SetBusinessInfoBtnClick(object sender, RoutedEventArgs e)
         {
-
-            if (businessInfo.Text == string.Empty)
+            if(businessInfo.Text.Length != 10)
             {
-                MessageBox.Show("사업자등록번호를 입력해주세요.");
+                DisplayDialog($"사업자등록번호를 10자리로 입력해주세요.", "Error");
             }
             else
             {
-                Data.CompanyRegistrationNum = Double.Parse(businessInfo.Text);
+                Data.CompanyRegistrationNum = (businessInfo.Text);
                 DisplayDialog($"사업자등록번호({Data.CompanyRegistrationNum})를\n저장했습니다.", "Success");
             }
         }
@@ -230,8 +248,40 @@ namespace CMC_Project.Views
         {
             if (averageRating.Text == string.Empty || estimateRating.Text == string.Empty)
             {
-                MessageBox.Show("사정율을 입력해주세요.");
+                DisplayDialog("사정율을 입력해주세요.", "Error");
+                return;
             }
+            else
+            {
+                try
+                {
+                    Data.BalanceRateNum = (Double.Parse(averageRating.Text));
+                    if (Data.BalanceRateNum < -2 || Data.BalanceRateNum > 2)
+                        throw new Exception();
+                }
+                catch (Exception)
+                {
+                    DisplayDialog("업체 평균 사정율이 올바르지 않습니다.", "Error");
+                    return;
+                }
+                try
+                {
+                    Data.PersonalRateNum = (Double.Parse(estimateRating.Text));
+                    if (Data.PersonalRateNum < -2 || Data.PersonalRateNum > 2)
+                        throw new Exception();
+                }
+                catch (Exception)
+                {
+                    DisplayDialog("나의 사정율이 올바르지 않습니다.", "Error");
+                    return;
+                }
+            }
+            if (Data.CompanyRegistrationNum == "")
+            {
+                DisplayDialog("사업자등록번호를 입력해주세요.", "Error");
+                return;
+            }
+
 
 
             // 단가를 불러온 경우

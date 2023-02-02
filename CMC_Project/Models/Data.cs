@@ -38,7 +38,7 @@ namespace SetUnitPriceByExcel
         public static bool IsConvert = false; // 변환을 했는지 안했는지
         public static bool IsBidFileOk = true; // 정상적인 공내역 파일인지
         public static bool IsFileMatch = true; // 공내역 파일과 실내역 파일의 공사가 일치하는지
-        public static double? CompanyRegistrationNum; //1.31 사업자등록번호 추가
+        public static string CompanyRegistrationNum = ""; //1.31 사업자등록번호 추가
         public static double? PersonalRateNum; //
         public static double? BalanceRateNum; // 사정율 출력용 변수
 
