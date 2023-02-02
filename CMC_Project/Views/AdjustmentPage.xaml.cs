@@ -25,7 +25,8 @@ namespace CMC_Project.Views
         public AdjustmentPage()
         {
             InitializeComponent();
-            this.businessInfo.TextChanged += BusinessChangedHandler;
+            this.businessNum.TextChanged += BusinessNumChangedHandler;
+            this.businessName.TextChanged += BusinessNameChangedHandler;
             this.averageRating.TextChanged += AverageChangedHandler;
             this.estimateRating.TextChanged += EstimateChangedHandler;
 
@@ -63,14 +64,14 @@ namespace CMC_Project.Views
 
         //sender: 이벤트 발생자, args: 이벤트 인자
 
-        private void BusinessChangedHandler(object sender, TextChangedEventArgs args)
+        private void BusinessNumChangedHandler(object sender, TextChangedEventArgs args)
         {
-            TextBox BusinessInfo = sender as TextBox;
-            int selectionStart = BusinessInfo.SelectionStart;
+            TextBox BusinessNum = sender as TextBox;
+            BusinessNum.MaxLength = 10;
+            int selectionStart = BusinessNum.SelectionStart;
             string result = string.Empty;
-            Data.CompanyRegistrationNum = (Double.Parse(BusinessInfo.GetLineText(0)));
-
-            foreach (char character in BusinessInfo.Text.ToCharArray())
+            Data.CompanyRegistrationNum = (Double.Parse(BusinessNum.GetLineText(0)));
+            foreach (char character in BusinessNum.Text.ToCharArray())
             {
                 if (char.IsDigit(character) || char.IsControl(character))
                 {
@@ -78,9 +79,25 @@ namespace CMC_Project.Views
 
                 }
             }
-            BusinessInfo.Text = result;
-            BusinessInfo.SelectionStart = selectionStart <= BusinessInfo.Text.Length ? selectionStart : BusinessInfo.Text.Length;
+            BusinessNum.Text = result;
+            BusinessNum.SelectionStart = selectionStart <= BusinessNum.Text.Length ? selectionStart : BusinessNum.Text.Length;
         }
+
+        private void BusinessNameChangedHandler(object sender, TextChangedEventArgs args)
+        {
+            TextBox BusinessName = sender as TextBox;
+            int selectionStart = BusinessName.SelectionStart;
+            string result = string.Empty;
+            Data.CompanyRegistrationName = BusinessName.GetLineText(0);
+            foreach (char character in BusinessName.Text.ToCharArray())
+            {
+                    result += character;
+            }
+            BusinessName.Text = result;
+            BusinessName.SelectionStart = selectionStart <= BusinessName.Text.Length ? selectionStart : BusinessName.Text.Length;
+        }
+
+
         private void AverageChangedHandler(object sender, TextChangedEventArgs args)
         {
             TextBox averageRating = sender as TextBox;
@@ -215,14 +232,23 @@ namespace CMC_Project.Views
         private void SetBusinessInfoBtnClick(object sender, RoutedEventArgs e)
         {
 
-            if (businessInfo.Text == string.Empty)
+            if (businessNum.Text == string.Empty)
             {
-                MessageBox.Show("사업자등록번호를 입력해주세요.");
+                DisplayDialog("사업자등록번호를 입력해주세요.","Fail");
+            }
+            else if (businessNum.GetLineLength(0) != 10) // 입력한 사용자등록번호가 10자리가 아닐 때
+            {
+                DisplayDialog("올바른 사용자등록번호를 입력해주세요.","Fail");
+            }
+            else if (businessName.Text == string.Empty)
+            {
+                DisplayDialog("회사명을 입력해주세요.", "Fail");
             }
             else
             {
-                Data.CompanyRegistrationNum = Double.Parse(businessInfo.Text);
-                DisplayDialog($"사업자등록번호({Data.CompanyRegistrationNum})를\n저장했습니다.", "Success");
+                Data.CompanyRegistrationName = businessName.Text;
+                Data.CompanyRegistrationNum = Double.Parse(businessNum.Text);
+                DisplayDialog($"입찰업체정보를 저장했습니다.", "Success");
             }
         }
 
