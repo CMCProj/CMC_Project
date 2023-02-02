@@ -10,6 +10,13 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
+/*
+ 23.02.02 업데이트
+ --------------------
+ 작업 폴더 경로 수정
+ --------------------
+*/
+
 namespace CMC_Project.Views
 {
     /// <summary>
@@ -142,7 +149,7 @@ namespace CMC_Project.Views
                 string copiedFolder = rootFolderAutoBID + "\\Actual Xlsx";  //폴더 경로 수정 (23.02.02)
                 StringBuilder output = new StringBuilder();
 
-                if (Directory.Exists(rootFolderAutoBID))    //AutoBID폴더가 존재하는 경우 (23.02.02)
+                if (Directory.Exists(rootFolderAutoBID))    //AutoBID 폴더가 존재하는 경우를 먼저 확인한다. (23.02.02)
                 {
                     if (!Directory.Exists(copiedFolder)) // 이미 폴더가 있지 않은 경우
                     {
