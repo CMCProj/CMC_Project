@@ -42,6 +42,12 @@ using System.Collections.Generic;
  작업 폴더 경로 수정
  --------------------
 */
+/*
+ 23.02.02 업데이트2
+ --------------------
+ 기존 폴더가 존재해도 제대로 작동되도록 수정
+ --------------------
+*/
 
 namespace SetUnitPriceByExcel
 {
@@ -501,15 +507,15 @@ namespace SetUnitPriceByExcel
             {
                 if (bid.Name == "T1")
                 {
-                    bid.Element("C17").Value = Data.CompanyRegistrationNum.ToString();
-                    bid.Element("C18").Value = Data.CompanyRegistrationName.ToString();
+                    bid.Element("C17").Value = Data.CompanyRegistrationNum;
+                    bid.Element("C18").Value = Data.CompanyRegistrationName;
                 }
             }
 
         }
 
         static void SubstitutePrice()
-        {  //BID 파일 내 원가계산서 관련 금액 세팅 (보류)
+        {  //BID 파일 내 원가계산서 관련 금액 세팅
             foreach (var bid in eleBID)
             {
                 if (bid.Name == "T5")   //bid.Name이 T5인지를 확인함으로 간단하게 원가 계산서부분의 element 인지를 판별. Tag는 T3가 아닌 T5 기준을 따른다. (23.01.31 수정)
@@ -524,6 +530,12 @@ namespace SetUnitPriceByExcel
                     }
                 }
             }
+
+            if(File.Exists(Data.work_path + "\\Result_Xml.xml"))  //기존 Result_Xml 파일은 삭제한다. (23.02.02)
+            {
+                File.Delete(Data.work_path + "\\Result_Xml.xml");
+            }
+
             //작업후 xml 파일 저장
             StringBuilder sb = new StringBuilder();
             XmlWriterSettings xws = new XmlWriterSettings
@@ -540,6 +552,11 @@ namespace SetUnitPriceByExcel
 
         public static void CreateZipFile(IEnumerable<string> files)
         {
+            if (File.Exists(Data.work_path + "\\입찰내역.zip"))  //기존 입찰내역.zip 파일은 삭제한다. (23.02.02)
+            {
+                File.Delete(Data.work_path + "\\입찰내역.zip");
+            }
+
             var Zip = ZipFile.Open(Path.Combine(Data.work_path, "입찰내역.zip"), ZipArchiveMode.Create);
             foreach (var file in files)
             {

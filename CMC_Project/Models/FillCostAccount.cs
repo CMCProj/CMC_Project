@@ -2,6 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+/*
+ 23.02.02 업데이트2
+ --------------------
+ 기존 폴더가 존재해도 제대로 작동되도록 수정
+ --------------------
+*/
+
 namespace SetUnitPriceByExcel
 {
     class FillCostAccount
@@ -81,6 +88,11 @@ namespace SetUnitPriceByExcel
             Data.InvestigateStandardMaterial = SM;
             Data.InvestigateStandardLabor = SL;
             Data.InvestigateStandardExpense = SOE;
+
+            if(File.Exists(Data.work_path + "원가계산서.xlsx"))  //먼저 기존 원가계산서 파일이 있다면 삭제한다. (23.02.02)
+            {
+                File.Delete(Data.work_path + "원가계산서.xlsx");
+            }
 
             costStatementPath = Path.Combine(Data.work_path, "원가계산서.xlsx");
             ExcelHandling.WriteExcel(workbook, costStatementPath);

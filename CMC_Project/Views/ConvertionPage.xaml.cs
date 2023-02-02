@@ -9,11 +9,19 @@ using System.Security.Principal;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Linq;
 
 /*
  23.02.02 업데이트
  --------------------
  작업 폴더 경로 수정
+ --------------------
+*/
+/*
+ 23.02.02 업데이트2
+ --------------------
+ 실행 시 마다 기존 폴더를 매번 삭제해야 하는 문제 해결
+ 기존 폴더 경로를 유지하면서 새로운 파일이 들어오면 기존에 있던 파일을 삭제하고 새로운 파일로 교체하도록 수정
  --------------------
 */
 
@@ -121,10 +129,62 @@ namespace CMC_Project.Views
                     Data.CanCovertFile = true;
                     Data.IsConvert = false;
                 }
-                else
+                else   //[AutoBID] 폴더가 이미 존재한다면 (23.02.02)
                 {
-                    DisplayDialog("AutoBID 폴더가 이미 존재합니다.", openFileDialog.FileName);    //[\\EmptyBid]폴더가 아닌 [내 문서\\AutoBID]폴더가 있는지 확인 (23.02.02)
-                    Data.CanCovertFile = false;
+                    if (!Directory.Exists(copiedFolder))    //[AutoBID\\EmptyBid] 폴더가 있는지 확인한다. 없으면 새로 생성한다. (23.02.02)
+                    {
+                        //-----[AutoBID\\EmptyBid] 폴더 생성 및 권한, access control 설정 (23.02.02)-----
+                        // directory permission
+                        Directory.CreateDirectory(copiedFolder);
+                        DirectoryInfo infoCopied = new DirectoryInfo(copiedFolder);
+                        infoCopied.Attributes &= ~FileAttributes.ReadOnly; // not read only 
+                                                                           // access control
+                        DirectorySecurity securityCopied = infoCopied.GetAccessControl();
+                        securityCopied.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+                        infoCopied.SetAccessControl(securityCopied);
+                    }
+                    if(!Directory.Exists(copiedFolder2))    //[AutoBID\\WORK DIRECTORY] 폴더가 있는지 확인한다. 없으면 새로 생성한다. (23.02.02)
+                    {
+                        //-----[AutoBID\\WORK DIRECTORY] 폴더 생성 및 권한, access control 설정 (23.02.02)-----
+                        // directory permission
+                        Directory.CreateDirectory(copiedFolder2);
+                        DirectoryInfo infoCopied2 = new DirectoryInfo(copiedFolder2);
+                        infoCopied2.Attributes &= ~FileAttributes.ReadOnly; // not read only 
+                                                                            // access control
+                        DirectorySecurity security2 = infoCopied2.GetAccessControl();
+                        security2.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+                        infoCopied2.SetAccessControl(security2);
+                    }
+
+                    try
+                    {
+                        DirectoryInfo infoCopiedFolder = new DirectoryInfo(copiedFolder);
+
+                        infoCopiedFolder.EnumerateFiles().ToList().ForEach(file => file.Delete());  //[AutoBID\\EmptyBid] 폴더에 있는 파일을 모두 삭제한다.
+                    }
+                    catch   //[AutoBID\\EmptyBid] 폴더에 파일이 없는 경우(ArgumentNullException) 그냥 넘어간다. (23.02.02)
+                    {
+                    }
+
+                    //업로드한 공내역 파일을 [AutoBID\\EmptyBid] 폴더에 복사한다. (23.02.02)
+                    FileStream file;
+
+                    // 파일 복사
+                    using (FileStream SourceStream = File.Open(openFileDialog.FileName, FileMode.Open))
+                    {
+                        using (FileStream DestinationStream = File.Create(copiedFolder + "\\" + System.IO.Path.GetFileName(openFileDialog.FileName)))
+                        {
+                            await SourceStream.CopyToAsync(DestinationStream);
+                            file = DestinationStream;
+                            DisplayDialog(DestinationStream.Name, "확인");
+                        }
+                    }
+
+                    Data.BidText = System.IO.Path.GetFileName(openFileDialog.FileName);
+                    BIDList.Text = Data.BidText;
+                    Data.BidFile = file;
+
+                    Data.CanCovertFile = true;
                     Data.IsConvert = false;
                 }
 
@@ -193,16 +253,52 @@ namespace CMC_Project.Views
                         Data.IsConvert = false;
                         count = 0;
                     }
-                    else
+                    else   //[AutoBID\\Actual Xlsx] 폴더가 이미 존재하는 경우 (23.02.02)
                     {
-                        DisplayDialog("Actual Xlsx 폴더가 이미 존재합니다.", "Error");
-                        Data.CanCovertFile = false;
+                        try
+                        {
+                            DirectoryInfo infoCopiedFolder = new DirectoryInfo(copiedFolder);
+
+                            infoCopiedFolder.EnumerateFiles().ToList().ForEach(file => file.Delete());  //[AutoBID\\Actual Xlsx] 폴더에 있는 파일을 모두 삭제한다.
+                        }
+                        catch   //[AutoBID\\Actual Xlsx] 폴더에 파일이 없는 경우(ArgumentNullException) 그냥 넘어간다. (23.02.02)
+                        {
+                        }
+
+                        //업로드한 실내역 파일들을 [AutoBID\\Actual Xlsx] 폴더에 복사한다. (23.02.02)
+                        int filenum = openFileDialog.FileNames.Length;
+                        List<FileStream> files = new List<FileStream>(new FileStream[filenum]);
+                        int count = 0;
+
+                        foreach (string filepath in openFileDialog.FileNames)
+                        {
+                            String filename = System.IO.Path.GetFileName(filepath);
+                            output.Append(filename + "\n");
+                            // 파일 복사
+
+                            using (FileStream SourceStream = File.Open(filepath, FileMode.Open))
+                            {
+                                using (FileStream DestinationStream = File.Create(copiedFolder + "\\" + filename))
+                                {
+                                    await SourceStream.CopyToAsync(DestinationStream);
+                                    files[count] = DestinationStream;
+                                }
+                            }
+                            count++;
+                        }
+
+                        Data.XlsFiles = files;
+                        Data.XlsText = output.ToString();
+                        XlsList.Text = Data.XlsText;
+
+                        Data.CanCovertFile = true;
                         Data.IsConvert = false;
+                        count = 0;
                     }
                 }
                 else   //AutoBID 폴더가 없는 경우 (23.02.02)
                 {
-                    DisplayDialog("공내역서를 먼저 업로드 해주세요.", "Error");
+                    DisplayDialog("AutoBID 폴더가 생성되지 않았습니다!\nAutoBID 폴더를 생성하려면 공내역서를 먼저 업로드 해주세요.", "Error");
                     Data.CanCovertFile = false;
                     Data.IsConvert = false;
                 }

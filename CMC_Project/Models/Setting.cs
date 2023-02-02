@@ -13,6 +13,12 @@ using System.Xml.Linq;
  작업 폴더 경로 수정
  --------------------
 */
+/*
+ 23.02.02 업데이트2
+ --------------------
+ 기존 폴더가 존재해도 제대로 작동되도록 수정
+ --------------------
+*/
 
 namespace SetUnitPriceByExcel
 {
@@ -30,7 +36,7 @@ namespace SetUnitPriceByExcel
             foreach (var num in constNums)
             {
                 string index = string.Concat(num.Element("C1").Value); 
-                string construction = string.Concat(num.Element("C2").Value);
+                string construction = string.Concat(num.Element("C3").Value);
                 if (Data.ConstructionNums.ContainsValue(construction))
                     construction += "2";
                 Data.ConstructionNums.Add(index, construction);
@@ -258,6 +264,11 @@ namespace SetUnitPriceByExcel
                         bid.Element("C23").Value = curObject.PriceSum.ToString();    //합계
                     }
                 }
+            }
+
+            if (File.Exists(Data.work_path + "\\Setting_Xml.xml"))  //기존 Setting_Xml 파일은 삭제한다. (23.02.02)
+            {
+                File.Delete(Data.work_path + "\\Setting_Xml.xml");
             }
 
             //작업 후 xml 파일 저장

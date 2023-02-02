@@ -1,10 +1,17 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 /*
  23.02.02 업데이트
  --------------------
  작업 폴더 경로 수정
+ --------------------
+*/
+/*
+ 23.02.02 업데이트2
+ --------------------
+ 기존 폴더가 존재해도 제대로 작동되도록 수정
  --------------------
 */
 
@@ -14,6 +21,12 @@ namespace SetUnitPriceByExcel
     {
         public static void Create()
         {
+            string[] xlsList = Directory.GetFiles(Data.folder, "*.xls");    //먼저 기존의 액셀 파일을 모두 삭제한다. (23.02.02)
+            foreach (string xls in xlsList)
+            {
+                File.Delete(xls);
+            }
+
             foreach (KeyValuePair<string, List<Data>> dic in Data.Dic)
             {
                 var workbook = ExcelHandling.GetWorkbook("입찰내역.xls", ".xls");   //입찰내역 양식 불러오기
