@@ -7,26 +7,26 @@ using System.Xml.Linq;
 using System.Collections.Generic;
 
 /*
-23.01.31 업데이트
-------------------
-새로운 Xml 구조에 맞게 수정
-==================
-T3
-    C24 -> C9
-    C4  -> C5
-    C15 -> C16
-    C16 -> C17
-    C17 -> C18
-    C18 -> C19
-    C19 -> C20
-    C20 -> C21
-    C21 -> C22
-    C22 -> C23
-==================
-T5
-    C9  -> C4
-    C22 -> C8
-==================
+ 23.01.31 업데이트
+ ------------------
+ 새로운 Xml 구조에 맞게 수정
+ ==================
+ T3
+     C24 -> C9
+     C4  -> C5
+     C15 -> C16
+     C16 -> C17
+     C17 -> C18
+     C18 -> C19
+     C19 -> C20
+     C20 -> C21
+     C21 -> C22
+     C22 -> C23
+ ==================
+ T5
+     C9  -> C4
+     C22 -> C8
+ ==================
 */
 /*
  23.01.31 업데이트2
@@ -36,6 +36,12 @@ T5
   Calculation() 내부에서 SetBusinessInfo() 호출 추가
  --------------------
  */
+/*
+ 23.02.02 업데이트
+ --------------------
+ 작업 폴더 경로 수정
+ --------------------
+*/
 
 namespace SetUnitPriceByExcel
 {
@@ -545,7 +551,7 @@ namespace SetUnitPriceByExcel
             //최종 입찰내역 파일 세부공사별로 생성 
             CreateResultFile.Create();
             //생성된 입찰내역 파일 압축 
-            string[] files = Directory.GetFiles(Data.desktop_path, "*.xls");
+            string[] files = Directory.GetFiles(Data.folder, "*.xls");  //폴더 경로 수정 (23.02.02)
             CreateZipFile(files);
         }
         static void Reset()
@@ -594,7 +600,7 @@ namespace SetUnitPriceByExcel
         }
         public static void Calculation()
         {
-            docBID = XDocument.Load(Path.Combine(Data.desktop_path, "Setting_Xml.xml"));
+            docBID = XDocument.Load(Path.Combine(Data.folder, "Setting_Xml.xml"));  //폴더 경로 수정 (23.02.02)
             eleBID = docBID.Root.Elements();
             //가격 재세팅 후 리셋 함수 실행 횟수 증가
             Reset();
