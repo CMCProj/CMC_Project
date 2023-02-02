@@ -22,6 +22,7 @@
                 <RadioButton Content="소수 1자리" x:Name="RadioInteger" IsChecked="True" Checked="RadioInteger_Checked" HorizontalAlignment="Left" Margin="142,55,0,0" VerticalAlignment="Top"/>
                 <RadioButton Content="정수" x:Name="RadioDecimal" Checked="RadioDecimal_Checked" HorizontalAlignment="Left" Margin="230,55,0,0" VerticalAlignment="Top"/>
                 <Label Content="1. 입찰내역 생성옵션" HorizontalAlignment="Left" Margin="6,0,0,0" VerticalAlignment="Top" FontSize="22"/>
+
             </Grid>
             <Grid Margin="320,42,44,304">
                 <Label HorizontalAlignment="Left" Margin="-47,6,0,0" Content="원가 법정요율" VerticalAlignment="Top" Width="120"/>
@@ -37,18 +38,20 @@
 
 
 
-        <Label Content="2. 사업자 등록번호 등록" HorizontalAlignment="Left" Margin="148,124,0,0" VerticalAlignment="Top" FontSize="22"/>
-        <TextBox x:Name="businessInfo" HorizontalAlignment="Left" Margin="148,176,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198" TextChanged="BusinessChangedHandler"/>
-        <Button Content="등록" HorizontalAlignment="Left" Margin="147,210,0,0" VerticalAlignment="Top" Width="199" Height="18" Click="SetBusinessInfoBtnClick"/>
+        <Label Content="2. 입찰 업체 정보 등록" HorizontalAlignment="Left" Margin="147,116,0,0" VerticalAlignment="Top" FontSize="22"/>
+        <Label Content="회사 명" HorizontalAlignment="Left" Margin="148,150,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="businessName" HorizontalAlignment="Left" Margin="149,176,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198" TextChanged="BusinessNameChangedHandler"/>
+        <Label Content="사업자등록번호" HorizontalAlignment="Left" Margin="148,197,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="businessNum" HorizontalAlignment="Left" Margin="149,223,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198" TextChanged="BusinessNumChangedHandler"/>
+        <Button Content="등록" HorizontalAlignment="Left" Margin="149,254,0,0" VerticalAlignment="Top" Width="200" Height="18" Click="SetBusinessInfoBtnClick"/>
 
+        <Label Content="업체 평균 사정율 (-2% ~ +2%)" HorizontalAlignment="Left" Margin="148,317,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="averageRating" HorizontalAlignment="Left" Margin="149,343,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198" TextChanged="AverageChangedHandler"/>
 
-        <Label Content="업체 평균 사정율 (-2% ~ +2%)" HorizontalAlignment="Left" Margin="148,289,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="averageRating" HorizontalAlignment="Left" Margin="149,315,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198" TextChanged="AverageChangedHandler"/>
+        <Label Content="나의 예가 사정율 (-2% ~ +2%)" HorizontalAlignment="Left" Margin="148,363,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="estimateRating" HorizontalAlignment="Left" Margin="149,389,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198" TextChanged="EstimateChangedHandler"/>
 
-        <Label Content="나의 예가 사정율 (-2% ~ +2%)" HorizontalAlignment="Left" Margin="148,335,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="estimateRating" HorizontalAlignment="Left" Margin="149,361,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="198" TextChanged="EstimateChangedHandler"/>
-
-        <Button Content="계산" HorizontalAlignment="Left" Margin="148,398,0,0" VerticalAlignment="Top" Width="199" Height="18" Click="CalBtnClick"/>
+        <Button Content="계산" HorizontalAlignment="Left" Margin="148,426,0,0" VerticalAlignment="Top" Width="199" Height="18" Click="CalBtnClick"/>
 
         <Label Content="고정금액비율" HorizontalAlignment="Left" Margin="418,170,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="FixedPercentPrice"  HorizontalAlignment="Left" Margin="516,174,0,0" TextWrapping="Wrap" Text="0%" VerticalAlignment="Top" Width="130"/>
@@ -61,13 +64,13 @@
 
         <Button Content="세부 결과 확인" HorizontalAlignment="Left" Margin="423,269,0,0" VerticalAlignment="Top" Width="236" Height="18" Click="ShowResult_Click"/>
 
-        <Label Content="3. 결과 저장" HorizontalAlignment="Left" Margin="415,293,0,0" VerticalAlignment="Top" FontSize="22"/>
+        <Label Content="4. 결과 저장" HorizontalAlignment="Left" Margin="415,293,0,0" VerticalAlignment="Top" FontSize="22"/>
         <Button Content="BID 파일 저장" HorizontalAlignment="Left" Margin="423,343,0,0" VerticalAlignment="Top" Width="236" Height="18" Click="SaveBidBtnClick"/>
         <Button Content="원가계산서(사정율 적용) 저장" HorizontalAlignment="Left" Margin="423,369,0,0" VerticalAlignment="Top" Width="236" Height="18" Click="SaveCostBtnClick"/>
         <Button Content="입찰내역 zip 파일 저장" HorizontalAlignment="Left" Margin="423,395,0,0" VerticalAlignment="Top" Width="236" Height="18" Click="SaveBiddingZipBtnClick"/>
 
         <ScrollBar HorizontalAlignment="Left" Margin="783,0,0,0" VerticalAlignment="Center" Height="434"/>
-        <Label Content="2. 사정율 대입" HorizontalAlignment="Left" Margin="148,245,0,0" VerticalAlignment="Top" FontSize="22"/>
+        <Label Content="3. 사정율 대입" HorizontalAlignment="Left" Margin="147,284,0,0" VerticalAlignment="Top" FontSize="22"/>
 
     </Grid>
 </Page>
