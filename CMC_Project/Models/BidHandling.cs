@@ -60,10 +60,21 @@ namespace SetUnitPriceByExcel
                 File.Delete(Data.work_path + "\\XmlToBID.BID");
             }
             File.WriteAllText(Path.Combine(Data.work_path, "XmlToBID.BID"), encodeValue);
+
             string resultFileName = filename.Substring(0, 16) + ".zip";
+            if (File.Exists(Data.work_path + "\\" + resultFileName))    //기존 공내역파일명.zip은 삭제한다. (23.02.02)
+            {
+                File.Delete(Data.work_path + "\\"+ resultFileName);
+            }
             using (ZipArchive zip = ZipFile.Open(Path.Combine(Data.work_path, resultFileName), ZipArchiveMode.Create))
             {
                 zip.CreateEntryFromFile(Path.Combine(Data.work_path, "XmlToBID.BID"), "XmlToBid.BID");
+            }
+
+            string resultBidPath = Path.ChangeExtension(Path.Combine(Data.work_path, resultFileName), ".BID");
+            if (File.Exists(resultBidPath))    //기존 공내역파일명.BID은 삭제한다. (23.02.02)
+            {
+                File.Delete(resultBidPath);
             }
             File.Move(Path.Combine(Data.work_path, resultFileName), Path.ChangeExtension(Path.Combine(Data.work_path, resultFileName), ".BID"));
         }
