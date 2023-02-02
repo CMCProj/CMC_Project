@@ -75,7 +75,7 @@ namespace CMC_Project.Views
             BusinessNum.MaxLength = 10;
             int selectionStart = BusinessNum.SelectionStart;
             string result = string.Empty;
-            Data.CompanyRegistrationNum = (Double.Parse(BusinessNum.GetLineText(0)));
+            //Data.CompanyRegistrationNum = (Double.Parse(BusinessNum.GetLineText(0)));
             foreach (char character in BusinessNum.Text.ToCharArray())
             {
                 if (char.IsDigit(character) || char.IsControl(character))
@@ -266,7 +266,7 @@ namespace CMC_Project.Views
             else
             {
                 Data.CompanyRegistrationName = businessName.Text;
-                Data.CompanyRegistrationNum = Double.Parse(businessNum.Text);
+                Data.CompanyRegistrationNum = businessNum.Text;
                 DisplayDialog($"입찰업체정보를 저장했습니다.", "Success");
             }
         }
