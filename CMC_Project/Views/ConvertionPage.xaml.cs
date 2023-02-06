@@ -24,6 +24,12 @@ using System.Linq;
  기존 폴더 경로를 유지하면서 새로운 파일이 들어오면 기존에 있던 파일을 삭제하고 새로운 파일로 교체하도록 수정
  --------------------
 */
+/*
+ 23.02.06 업데이트
+ --------------------
+ 액셀 실내역 파일 없이 BID 파일만으로 단가 세팅이 되도록 수정
+ --------------------
+ */
 
 namespace CMC_Project.Views
 {
@@ -315,9 +321,53 @@ namespace CMC_Project.Views
         private async void ConvertButtonClick(object sender, RoutedEventArgs e)
         {
 
-            if (Data.XlsFiles == null || Data.BidFile == null)
+            if (Data.BidFile == null)
             {
-                DisplayDialog("파일을 업로드 해주세요!.", "Upload");
+                DisplayDialog("공내역 파일을 업로드 해주세요!.", "Upload");
+            }
+            else if (Data.XlsFiles == null) //실내역 파일 없이 공내역만으로 원가 계산서 만듬 (23.02.06)
+            {
+                BidOpenFile.IsEnabled = false;
+                XlsOpenFile.IsEnabled = false;
+                try
+                {
+                    //공내역 bid 파일 -> 공내역 xml 파일
+                    BidHandling.BidToXml();
+                    //실내역 데이터 복사 및 단가 세팅 & 직공비 고정금액 비중 계산
+                    //Setting.GetData(); -> 비동기 문제로 BidHandling.BidToXml()로 이동
+                }
+                catch
+                {
+                    DisplayDialog("정상적인 파일이 아닙니다. 파일을 확인해주세요.", "Error");
+                    return;
+                }
+                if (!Data.IsBidFileOk)
+                {
+                    DisplayDialog("정상적인 공내역 파일이 아닙니다. 파일을 확인해주세요.", "Error");
+                    return;
+                }
+                else
+                {
+                    //원가계산서상 없는 항목들 예외 처리(0 대입)
+                    FillCostAccount.CheckKeyNotFound();
+
+                    //원가계산서 항목별 조사금액 계산(보정 전)
+                    FillCostAccount.CalculateInvestigationCosts(Data.Correction);
+
+                    ViewCostAccount();
+
+                    FillCostAccount.CalculateInvestigationCosts(Data.Correction);
+                    //원가계산서_세부결과 조사금액 세팅
+                    FillCostAccount.FillInvestigationCosts();
+
+                    Data.CanCovertFile = false;
+                    Data.IsConvert = true;
+                    AdjustmentPage.isConfirm = true;
+                    DisplayDialog("단가 세팅 완료", "Complete");
+
+                    Data.CanCovertFile = true;
+                    Data.IsConvert = false;
+                }
             }
             else if (!Data.CanCovertFile)
             {

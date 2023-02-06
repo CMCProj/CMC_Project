@@ -17,6 +17,12 @@ using System.Text;
  기존 폴더가 존재해도 제대로 작동되도록 수정
  --------------------
 */
+/*
+ 23.02.06 업데이트
+ --------------------
+ 같은 이름의 BID 파일이 있다면 덮어쓰도록 수정
+ --------------------
+*/
 
 namespace SetUnitPriceByExcel
 {
@@ -65,7 +71,7 @@ namespace SetUnitPriceByExcel
             {
                 zip.CreateEntryFromFile(Path.Combine(Data.work_path, "XmlToBID.BID"), "XmlToBid.BID");
             }
-            File.Move(Path.Combine(Data.work_path, resultFileName), Path.ChangeExtension(Path.Combine(Data.work_path, resultFileName), ".BID"));
+            File.Move(Path.Combine(Data.work_path, resultFileName), Path.ChangeExtension(Path.Combine(Data.work_path, resultFileName), ".BID"), true);  //같은 이름의 BID 파일이 있다면 덮어쓰기 (23.02.06)
         }
     }
 }

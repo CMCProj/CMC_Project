@@ -23,6 +23,14 @@ using System.Collections.Generic;
  작업 폴더가 [바탕화면]에서 [내 문서\\AutoBID]로 변경됨에 따라 desktop_path 변수는 더 이상 사용되지 않는다.
  --------------------
 */
+/*
+ 23.02.06 업데이트
+ --------------------
+ 재료비단가, 노무비단가, 경비단가 초기값을 소수점 절사하지 않고 그대로 넣는 것으로 수정
+ 각 단가 return시의 조건 추가
+ 작업설 프로퍼티 추가
+ --------------------
+ */
 
 namespace SetUnitPriceByExcel
 {
@@ -64,48 +72,56 @@ namespace SetUnitPriceByExcel
         {
             get
             {
-                //사용자가 단가 정수처리를 원한다면("2") 정수 값으로 return 
-                if (UnitPriceTrimming.Equals("2"))
+                //사용자가 단가 정수처리를 원한다면("2") 정수 값으로 return / Reset 함수를 쓰지 않은 경우의 조건 추가 (23.02.06)
+                if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
                     return Math.Ceiling(materialUnit);
-                return materialUnit;
+                else if (UnitPriceTrimming.Equals("1") || ExecuteReset.Equals("1")) // 사용자가 단가 소수점 처리를 원하거나 Reset 함수를 썼다면 소수 첫째 자리 아래로 절사 (23.02.06)
+                    return Math.Truncate(materialUnit * 10) / 10;
+                return materialUnit; //Default는 있는 그대로의 값을 return
             }
             set
             {
-                //소수 첫째 자리 아래로 절사한 값을 초기 값으로 세팅
-                materialUnit = Math.Truncate(value * 10) / 10;
+                //소수 첫째 자리 아래로 절사한 값을 초기 값으로 세팅 / 원래 값 그대로 넣는 것으로 수정 (23.02.06)
+                materialUnit = value;
                 //사용자가 단가 정수처리를 원한다면 정수 값으로 세팅 (Reset 함수 사용 시 단가 소수처리 옵션과 상관없이 소수 첫째 자리 아래로 절사) 
-                if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
-                    materialUnit = Math.Ceiling(value);
+                //if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
+                //    materialUnit = Math.Ceiling(value);
             }
         }
         public decimal LaborUnit //노무비 단가
         {
             get
             {
-                if (UnitPriceTrimming.Equals("2"))
+                if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
                     return Math.Ceiling(laborUnit);
+                else if (UnitPriceTrimming.Equals("1") || ExecuteReset.Equals("1"))
+                    return Math.Truncate(laborUnit * 10) / 10;
                 return laborUnit;
             }
             set
             {
-                laborUnit = Math.Truncate(value * 10) / 10;
-                if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
-                    laborUnit = Math.Ceiling(value);
+                //원래 값 그대로 넣는 것으로 수정 (23.02.06)
+                laborUnit = value;
+                //if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
+                //    laborUnit = Math.Ceiling(value);
             }
         }
         public decimal ExpenseUnit //경비 단가
         {
             get
             {
-                if (UnitPriceTrimming.Equals("2"))
+                if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
                     return Math.Ceiling(expenseUnit);
+                else if (UnitPriceTrimming.Equals("1") || ExecuteReset.Equals("1"))
+                    return Math.Truncate(expenseUnit * 10) / 10;
                 return expenseUnit;
             }
             set
             {
-                expenseUnit = Math.Truncate(value * 10) / 10;
-                if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
-                    expenseUnit = Math.Ceiling(value);
+                //원래 값 그대로 넣는 것으로 수정(23.02.06)
+                expenseUnit = value;
+                //if (UnitPriceTrimming.Equals("2") && ExecuteReset.Equals("0"))
+                //    expenseUnit = Math.Ceiling(value);
             }
         }
         public decimal Material { get { return Math.Truncate(Quantity * MaterialUnit); } }      //재료비 (수량 x 단가)
@@ -152,6 +168,7 @@ namespace SetUnitPriceByExcel
         public static decimal StandardExpense { get; set; }     //표준시장단가 산출경비
         public static decimal InvestigateStandardMarket { get; set; }   //표준시장단가 합계(조사내역)
         public static decimal FixedPricePercent { get; set; }           //고정금액 비중
+        public static decimal ByProduct { get; set; }   //작업설
 
         public static Dictionary<string, List<Data>> Dic = new Dictionary<string, List<Data>>();        //key : 세부공사별 번호 / value : 세부공사별 리스트
         public static Dictionary<string, string> ConstructionNums = new Dictionary<string, string>();   //세부 공사별 번호 저장
@@ -168,7 +185,7 @@ namespace SetUnitPriceByExcel
         public static Dictionary<string, long> Correction = new Dictionary<string, long>();     //원가계산서 조사금액 보정 항목 저장
 
         //사용자의 옵션 및 사정률 데이터
-        public static string UnitPriceTrimming { get; set; } = "1";         //단가 소수 처리 (defalut = "1")
+        public static string UnitPriceTrimming { get; set; } = "0";         //단가 소수 처리 (defalut = "0")
         public static string StandardMarketDeduction { get; set; } = "2";   //표준시장단가 99.7% 적용
         public static string ZeroWeightDeduction { get; set; } = "2";     //가중치 0% 공종 50% 적용
         public static string CostAccountDeduction { get; set; } = "2";     //원가계산 제경비 99.7% 적용

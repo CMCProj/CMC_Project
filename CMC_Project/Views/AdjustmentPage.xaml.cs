@@ -238,7 +238,7 @@ namespace CMC_Project.Views
         //노무비 하한율 체크
         private void CheckLaborCost_Click(object sender, RoutedEventArgs e)
         {
-            if ((bool)CheckCeiling.IsChecked)
+            if ((bool)CheckLaborCost.IsChecked)
             {
                 Data.LaborCostLowBound = "1";
             }

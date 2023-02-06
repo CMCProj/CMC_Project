@@ -19,6 +19,15 @@ using System.Xml.Linq;
  기존 폴더가 존재해도 제대로 작동되도록 수정
  --------------------
 */
+/*
+ 23.02.06 업데이트
+ --------------------
+ GetDataFromBID에서 Data객체에 각 단가를 세팅하도록 수정
+ GetItem에 세부 공종 추가
+ SetUnitPriceNoExcel 메소드 추가
+ GetPrices 공종 계산 수정 및 추가
+ --------------------
+*/
 
 namespace SetUnitPriceByExcel
 {
@@ -68,9 +77,9 @@ namespace SetUnitPriceByExcel
                             Standard = string.Concat(work.Element("C13").Value), // 규격 C10 -> C13으로 변경
                             Unit = string.Concat(work.Element("C14").Value), // 단위 C11 -> C14로 변경
                             Quantity = Convert.ToDecimal(work.Element("C15").Value), // 수량 C13 -> C15로 변경
-                            MaterialUnit = Convert.ToDecimal(work.Element("C16").Value), // 재료비 단가 C15 -> C16으로 변경
-                            LaborUnit = Convert.ToDecimal(work.Element("C17").Value), // 노무비 단가 C16 -> C17로 변경
-                            ExpenseUnit = Convert.ToDecimal(work.Element("C18").Value), // 경비 단가 C17 -> C18로 변경
+                            MaterialUnit = Convert.ToDecimal(work.Element("C28").Value), // 재료비 단가 C15 -> C28로 변경
+                            LaborUnit = Convert.ToDecimal(work.Element("C29").Value), // 노무비 단가 C16 -> C29로 변경
+                            ExpenseUnit = Convert.ToDecimal(work.Element("C30").Value), // 경비 단가 C17 -> C30으로 변경
                         };
             //항목에 해당하는 세부공사의 리스트에 객체 추가
             foreach (var work in works)
@@ -113,14 +122,20 @@ namespace SetUnitPriceByExcel
 
             //해당 공종이 제요율적용제외공종인 경우
             //else if (string.Concat(bid.Element("C7").Value) == "6")//해당 항목은 적용비율 항목으로 T5에 있음
-              //  item = "고정금액";
+            //  item = "고정금액";
 
+            //해당 공종이 PS내역인 경우
+            else if (string.Concat(bid.Element("C7").Value) == "7")
+                item = "PS내역";
             //해당 공종이 음의 가격 공종인 경우
             else if (string.Concat(bid.Element("C7").Value) == "19") //7->19로 변경
-                item = "PS내역";
-            //해당 공종이 안전관리비인 경우
+                item = "음(-)의 입찰금액";
+            //해당 공종이 PS(안전관리비)인 경우
             else if (string.Concat(bid.Element("C7").Value) == "20") // 9 -> 20으로 변경
-                item = "안전관리비";
+                item = "PS(안전관리비)";
+            //해당 공종이 작업설인 경우
+            else if (string.Concat(bid.Element("C7").Value) == "22")
+                item = "작업설";
             else
                 item = "예외";
 
@@ -159,7 +174,7 @@ namespace SetUnitPriceByExcel
             Data.IsFileMatch = false;
         }
 
-        static void CopyFile(string filePath)   //실내역파일에서 읽은 데이터로 BID파일에 단가세팅
+        static void CopyFile(string filePath)   //실내역파일에서 읽은 데이터로 Data 객체에 단가세팅
         {
             var workbook = ExcelHandling.GetWorkbook(filePath, ".xlsx");    //get workbook
             var copySheetIndex = workbook.GetSheetIndex("내역서");          //data는 실내역서의 두 번째 sheet인 "내역서"에 위치
@@ -285,6 +300,52 @@ namespace SetUnitPriceByExcel
             File.WriteAllText(Path.Combine(Data.folder, "Setting_Xml.xml"), sb.ToString());
         }
 
+        static void SetUnitPriceNoExcel()  //액셀 파일 없이 복사된 단가를 OutputDataFromBID.xml에 세팅 (23.02.06)
+        {
+            //복사한 단가 OutputDataFromBID.xml에 세팅
+            foreach (var bid in eleBID)
+            {
+                //단가를 가지는 항목에 단가 복사
+                if (bid.Element("C9") != null && string.Concat(bid.Element("C5").Value) == "S")
+                {
+                    var constNum = string.Concat(bid.Element("C1").Value);      //세부공사 번호
+                    var numVal = string.Concat(bid.Element("C2").Value);        //공종 번호
+                    var detailVal = string.Concat(bid.Element("C3").Value);     //세부 공종 번호
+                    var curObject = Data.Dic[constNum].Find(x => x.WorkNum == numVal && x.DetailWorkNum == detailVal);
+
+                    if (curObject.Item == "일반" || curObject.Item == "제요율적용제외")
+                    {
+                        bid.Element("C16").Value = curObject.MaterialUnit.ToString();    //재료비 단가
+                        bid.Element("C17").Value = curObject.LaborUnit.ToString();       //노무비 단가
+                        bid.Element("C18").Value = curObject.ExpenseUnit.ToString();     //경비 단가
+                        bid.Element("C19").Value = curObject.UnitPriceSum.ToString();    //합계 단가
+                        bid.Element("C20").Value = curObject.Material.ToString();    //재료비
+                        bid.Element("C21").Value = curObject.Labor.ToString();       //노무비
+                        bid.Element("C22").Value = curObject.Expense.ToString();     //경비
+                        bid.Element("C23").Value = curObject.PriceSum.ToString();    //합계
+                    }
+                }
+            }
+
+            if (File.Exists(Data.work_path + "\\Setting_Xml.xml"))  //기존 Setting_Xml 파일은 삭제한다. (23.02.02)
+            {
+                File.Delete(Data.work_path + "\\Setting_Xml.xml");
+            }
+
+            //작업 후 xml 파일 저장
+            StringBuilder sb = new StringBuilder();
+            XmlWriterSettings xws = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = true,
+                Indent = true
+            };
+            using (XmlWriter xw = XmlWriter.Create(sb, xws))
+            {
+                docBID.WriteTo(xw);
+            }
+            File.WriteAllText(Path.Combine(Data.folder, "Setting_Xml.xml"), sb.ToString());
+        }
+
         static void GetRate()   //고정금액 및 적용비율 1, 2 저장
         {
             foreach (var bid in eleBID)
@@ -337,6 +398,10 @@ namespace SetUnitPriceByExcel
                         Data.PsMaterial += item.Material;
                         Data.PsLabor += item.Labor;
                         Data.PsExpense += item.Expense;
+                        //PS단가 고정 단가에 추가 (23.02.06)
+                        Data.FixedPriceDirectMaterial += item.Material; //재료비 합 계산
+                        Data.FixedPriceDirectLabor += item.Labor;    //노무비 합 계산
+                        Data.FixedPriceOutputExpense += item.Expense;  //경비 합 계산
                     }
                     //해당 공종이 제요율적용제외공종인 경우
                     else if (item.Item.Equals("제요율적용제외"))
@@ -345,12 +410,19 @@ namespace SetUnitPriceByExcel
                         Data.ExcludingLabor += item.Labor;
                         Data.ExcludingExpense += item.Expense;
                     }
-                    //해당 공종이 안전관리비인 경우
-                    else if (item.Item.Equals("안전관리비"))
+                    //해당 공종이 PS(안전관리비)인 경우
+                    else if (item.Item.Equals("PS(안전관리비)"))
                     {
                         Data.SafetyPrice += item.Expense;
+                        //PS(안전관리비) 고정 단가에 추가 (23.02.06)
+                        Data.FixedPriceDirectMaterial += item.Material; //재료비 합 계산
+                        Data.FixedPriceDirectLabor += item.Labor;    //노무비 합 계산
+                        Data.FixedPriceOutputExpense += item.Expense;  //경비 합 계산
+                        //직공비에 해당하는 각 객체의 재료비, 노무비, 경비를 직접재료비, 직접노무비, 산출 경비에 더해나감
+                        Data.RealDirectMaterial += item.Material;
+                        Data.RealDirectLabor += item.Labor;
+                        Data.RealOutputExpense += item.Expense;
                     }
-
                     //표준시장단가 품목인지 확인
                     else if (item.Item.Equals("표준시장단가"))
                     {
@@ -367,7 +439,7 @@ namespace SetUnitPriceByExcel
                         Data.StandardExpense += item.Expense;
                     }
                     //음(-)의 단가 품목인지 확인
-                    else if (item.Item.Equals("PS내역"))
+                    else if (item.Item.Equals("음(-)의 입찰금액"))
                     {
                         Data.FixedPriceDirectMaterial += item.Material;
                         Data.FixedPriceDirectLabor += item.Labor;
@@ -388,6 +460,14 @@ namespace SetUnitPriceByExcel
                         Data.RealDirectLabor += item.Labor;
                         Data.RealOutputExpense += item.Expense;
                     }
+                    //작업설인지 확인
+                    else if (item.Item.Equals("작업설"))
+                    {
+                        //작업설 가격 더해나감 (23.02.06)
+                        Data.ByProduct += item.Material;
+                        Data.ByProduct += item.Labor;
+                        Data.ByProduct += item.Expense;
+                    }
                 }
             }
         }
@@ -407,8 +487,10 @@ namespace SetUnitPriceByExcel
             //공내역 xml 파일 읽어들여 데이터 저장
             GetDataFromBID();
 
-            //실내역으로부터 Data 객체에 단가세팅
-            SetUnitPrice();
+            if(Data.XlsFiles != null)   //실내역으로부터 Data 객체에 단가세팅
+                SetUnitPrice();
+            else
+                SetUnitPriceNoExcel();  //실내역 없이 공내역만으로 Data 객체에 단가 세팅 (23.02.06)
 
             //고정금액 및 적용비율 저장
             GetRate();
