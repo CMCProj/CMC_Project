@@ -118,6 +118,11 @@ namespace SetUnitPriceByExcel
             //해당 공종이 음의 가격 공종인 경우
             else if (string.Concat(bid.Element("C7").Value) == "19") //7->19로 변경
                 item = "PS내역";
+            //else if (string.Concat(bid.Element("C7").Value) == "7") //PS내역 추가 2.04
+            //    item = "PS내역";
+            else if (string.Concat(bid.Element("C7").Value) == "20") //PS(안전관리비) 추가 2.04
+                item = "PS내역";
+
             //해당 공종이 안전관리비인 경우
             else if (string.Concat(bid.Element("C7").Value) == "20") // 9 -> 20으로 변경
                 item = "안전관리비";
