@@ -19,8 +19,8 @@
                 <Label HorizontalAlignment="Left" Margin="17,98,0,0" Content="공중가중치 0%" VerticalAlignment="Top" Width="120"/>
                 <CheckBox Content="최소단가(50%) 적용" x:Name="CheckWeightValue" Click="CheckWeightValue_Click" HorizontalAlignment="Left" Margin="142,98,0,0" VerticalAlignment="Top"/>
                 <CheckBox Content="0.3% 적용"  x:Name="CheckStandardPrice" Click="CheckStandardPrice_Click" HorizontalAlignment="Left" Margin="142,76,0,0" VerticalAlignment="Top"/>
-                <RadioButton Content="소수 1자리" x:Name="RadioInteger" IsChecked="True" Checked="RadioInteger_Checked" HorizontalAlignment="Left" Margin="142,55,0,0" VerticalAlignment="Top"/>
-                <RadioButton Content="정수" x:Name="RadioDecimal" Checked="RadioDecimal_Checked" HorizontalAlignment="Left" Margin="230,55,0,0" VerticalAlignment="Top"/>
+                <RadioButton Content="소수 1자리" x:Name="RadioDecimal" IsChecked="True" Checked="RadioDecimal_Checked" HorizontalAlignment="Left" Margin="142,55,0,0" VerticalAlignment="Top"/>
+                <RadioButton Content="정수" x:Name="RadioInteger" Checked="RadioInteger_Checked" HorizontalAlignment="Left" Margin="230,55,0,0" VerticalAlignment="Top"/>
                 <Label Content="1. 입찰내역 생성옵션" HorizontalAlignment="Left" Margin="6,0,0,0" VerticalAlignment="Top" FontSize="22"/>
 
             </Grid>

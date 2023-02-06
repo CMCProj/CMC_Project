@@ -2,6 +2,13 @@
 using System;
 using System.Windows;
 
+/*
+ 23.02.06 업데이트
+ --------------------
+ 작업설 등 목록 추가
+ --------------------
+*/
+
 namespace CMC_Project.Views
 {
     /// <summary>
@@ -40,10 +47,11 @@ namespace CMC_Project.Views
             CostAccount_26.Text = Data.Investigation["제요율적용제외공종"].ToString("#,##0");
             CostAccount_27.Text = Data.Investigation["총원가"].ToString("#,##0");
             CostAccount_28.Text = Data.Investigation["공사손해보험료"].ToString("#,##0");
-            CostAccount_29.Text = Data.Investigation["소계"].ToString("#,##0");
-            CostAccount_30.Text = Data.Investigation["부가가치세"].ToString("#,##0");
-            CostAccount_31.Text = "0";
-            CostAccount_32.Text = Data.Investigation["도급비계"].ToString("#,##0");
+            CostAccount_29.Text = Data.Investigation["작업설 등"].ToString("#,##0"); //작업설 등 목록 추가 (23.02.06)
+            CostAccount_30.Text = Data.Investigation["소계"].ToString("#,##0");
+            CostAccount_31.Text = Data.Investigation["부가가치세"].ToString("#,##0");
+            CostAccount_32.Text = "0";
+            CostAccount_33.Text = Data.Investigation["도급비계"].ToString("#,##0");
         }
 
 

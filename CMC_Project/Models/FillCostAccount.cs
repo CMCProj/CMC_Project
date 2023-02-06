@@ -8,6 +8,12 @@ using System.IO;
  기존 폴더가 존재해도 제대로 작동되도록 수정
  --------------------
 */
+/*
+ 23.02.06 업데이트
+ --------------------
+ Data.Investigation, Data.Bidding에 작업설 추가
+ --------------------
+*/
 
 namespace SetUnitPriceByExcel
 {
@@ -249,8 +255,10 @@ namespace SetUnitPriceByExcel
             Data.Investigation["공사손해보험료"] = ToLong(Data.Investigation["직공비"] * (Data.Rate1["공사손해보험료"] * 0.01m));
             if (correction.ContainsKey("공사손해보험료"))
                 Data.Investigation["공사손해보험료"] = correction["공사손해보험료"];
+            //작업설 추가 (23.02.06)
+            Data.Investigation["작업설 등"] = ToLong(Data.ByProduct);
             //6. 소계
-            Data.Investigation["소계"] = Data.Investigation["총원가"] + Data.Investigation["공사손해보험료"];
+            Data.Investigation["소계"] = Data.Investigation["총원가"] + Data.Investigation["공사손해보험료"] + Data.Investigation["작업설 등"]; //전체 가격 계산에 작업설 추가 (23.02.06)
             //7. 부가가치세
             Data.Investigation["부가가치세"] = ToLong(Data.Investigation["소계"] * (Data.Rate1["부가가치세"] * 0.01m));
             if (correction.ContainsKey("부가가치세"))
@@ -387,8 +395,10 @@ namespace SetUnitPriceByExcel
                 Data.Bidding["공사손해보험료before"] = ToLong(Data.Bidding["직공비"] * (Data.Rate1["공사손해보험료"] * 0.01m));
                 Data.Bidding["공사손해보험료"] = ToLong(Math.Ceiling(Data.Bidding["직공비"] * Data.Rate1["공사손해보험료"] * 0.01m * 0.997m));
             }
+            //작업설 추가 (23.02.06)
+            Data.Bidding["작업설 등"] = ToLong(Data.ByProduct);
             //6. 소계
-            Data.Bidding["소계"] = Data.Bidding["총원가"] + Data.Bidding["공사손해보험료"];
+            Data.Bidding["소계"] = Data.Bidding["총원가"] + Data.Bidding["공사손해보험료"] + Data.Bidding["작업설 등"]; //전체 가격 계산에 작업설 추가 (23.02.06)
             //7. 부가가치세
             Data.Bidding["부가가치세"] = ToLong(Data.Bidding["소계"] * (Data.Rate1["부가가치세"] * 0.01m));
             //8. 매입세(입찰 공사 파일 중, 매입세 있는 공사 없음. 추후 추가할 수 있음)

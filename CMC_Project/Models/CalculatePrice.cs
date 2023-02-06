@@ -48,6 +48,13 @@ using System.Collections.Generic;
  기존 폴더가 존재해도 제대로 작동되도록 수정
  --------------------
 */
+/*
+ 23.02.06 업데이트
+ --------------------
+ 고정금액 소수점 5자리에서 절사되도록 수정
+ --------------------
+*/
+
 
 namespace SetUnitPriceByExcel
 {
@@ -123,8 +130,8 @@ namespace SetUnitPriceByExcel
             var directConstPrice = Data.Investigation["직공비"];
             var fixCostSum = Data.InvestigateFixedPriceDirectMaterial + Data.InvestigateFixedPriceDirectLabor + Data.InvestigateFixedPriceOutputExpense;
 
-            Data.FixedPricePercent = (fixCostSum / directConstPrice) * 100; // 고정금액 비중 계산
-            var temp = 0;
+            Data.FixedPricePercent = Math.Truncate(((fixCostSum / directConstPrice) * 100) * 10000) / 10000; // 고정금액 비중 계산 / 고정금액 소수점 5자리 수에서 절사 (23.02.06)
+            //var temp = 0;
         }
 
         static void FindMyPercent() //고정금액 비중에 따른 최저네고단가율 계산
