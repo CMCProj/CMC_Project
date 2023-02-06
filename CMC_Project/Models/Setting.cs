@@ -398,10 +398,6 @@ namespace SetUnitPriceByExcel
                         Data.PsMaterial += item.Material;
                         Data.PsLabor += item.Labor;
                         Data.PsExpense += item.Expense;
-                        //PS단가 고정 단가에 추가 (23.02.06)
-                        Data.FixedPriceDirectMaterial += item.Material; //재료비 합 계산
-                        Data.FixedPriceDirectLabor += item.Labor;    //노무비 합 계산
-                        Data.FixedPriceOutputExpense += item.Expense;  //경비 합 계산
                     }
                     //해당 공종이 제요율적용제외공종인 경우
                     else if (item.Item.Equals("제요율적용제외"))
