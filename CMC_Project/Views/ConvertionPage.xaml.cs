@@ -472,6 +472,7 @@ namespace CMC_Project.Views
             Data.StandardExpense = 0;
             Data.InvestigateStandardMarket = 0;
             Data.FixedPricePercent = 0;
+            Data.ByProduct = 0;
 
             //자료구조 초기화
             Data.Dic.Clear();
@@ -492,6 +493,8 @@ namespace CMC_Project.Views
             Data.IsConvert = false;
             Data.IsBidFileOk = true;
             Data.IsFileMatch = true;
+            Data.CompanyRegistrationNum = "";
+            Data.CompanyRegistrationName = "";
 
             //업로드 버튼 활성화
             BidOpenFile.IsEnabled = true;
@@ -505,7 +508,7 @@ namespace CMC_Project.Views
             //WPF 변수 초기화
             Data.BalanceRateNum = null;
             Data.PersonalRateNum = null;
-            Data.UnitPriceTrimming = "1";
+            Data.UnitPriceTrimming = "0";
             Data.StandardMarketDeduction = "2";
             Data.ZeroWeightDeduction = "2";
             Data.CostAccountDeduction = "2";
