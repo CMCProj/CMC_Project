@@ -54,6 +54,12 @@ using System.Collections.Generic;
  고정금액 소수점 5자리에서 절사되도록 수정
  --------------------
 */
+/*
+ 23.02.07 업데이트
+ --------------------
+ 공종 합계 저장 메소드 (SetPriceOfSuperConstruction) 추가
+ --------------------
+*/
 
 
 namespace SetUnitPriceByExcel
@@ -521,6 +527,69 @@ namespace SetUnitPriceByExcel
 
         }
 
+        public static void SetPriceOfSuperConstruction()    //상위 공종의 각 단가 합 및 합계 세팅 (23.02.07)
+        {
+            XElement? firstConstruction = null;     //가장 상위 공종
+            XElement? secondConstruction = null;    //중간 상위 공종
+            XElement? thirdConstruction = null;     //마지막 상위 공종
+
+            foreach (var bid in eleBID)
+            {
+                if(bid.Name == "T3")
+                {
+                    if (string.Concat(bid.Element("C5").Value) == "G")  //공종이면
+                    {
+                        if (bid.Element("C23").Value == "0")    //이미 합계가 세팅되어 있는지 확인 (중복 계산을 막기 위함)
+                        {
+                            if (firstConstruction == null || string.Concat(bid.Element("C3").Value) == "0") //C3이 0이면 가장 상위 공종
+                            {
+                                firstConstruction = bid;    //현재 보고있는 object가 가장 상위 공종
+                                secondConstruction = null;  //중간 상위 공종 초기화
+                                thirdConstruction = null;   //마지막 상위 공종 초기화
+                            }
+                            else if (string.Concat(bid.Element("C3").Value) == string.Concat(firstConstruction.Element("C2").Value) && firstConstruction != null)   //C3이 가장 상위 공종의 C2와 같다면 중간 상위 공종
+                            {
+                                secondConstruction = bid;   //현재 보고있는 object가 중간 상위 공종
+                                thirdConstruction = null;   //마지막 상위 공종 초기화
+                            }
+                            else if (string.Concat(bid.Element("C3").Value) == string.Concat(secondConstruction.Element("C2").Value) && secondConstruction != null) // C3이 중간 상위 공종의 C2와 같다면 마지막 상위 공종
+                                thirdConstruction = bid;    //현재 보고있는 object가 마지막 상위 공종
+                        }
+                        else   //공종에 합계가 이미 세팅되어 있다면 전부 초기화
+                        {
+                            firstConstruction = null;
+                            secondConstruction = null;
+                            thirdConstruction = null;
+                        }
+                    }
+                    else if (bid.Element("C9") != null && string.Concat(bid.Element("C5").Value) == "S")    //공종이 아니면
+                    {
+                        if (firstConstruction != null)  //현재 보는 object가 가장 상위 공종에 포함되어 있다면 단가별 합과 합계를 더해나감
+                        {
+                            firstConstruction.Element("C20").Value = string.Concat(Convert.ToDecimal(firstConstruction.Element("C20").Value) + Convert.ToDecimal(bid.Element("C20").Value));    //재료비
+                            firstConstruction.Element("C21").Value = string.Concat(Convert.ToDecimal(firstConstruction.Element("C21").Value) + Convert.ToDecimal(bid.Element("C21").Value));    //노무비
+                            firstConstruction.Element("C22").Value = string.Concat(Convert.ToDecimal(firstConstruction.Element("C22").Value) + Convert.ToDecimal(bid.Element("C22").Value));    //경비
+                            firstConstruction.Element("C23").Value = string.Concat(Convert.ToDecimal(firstConstruction.Element("C23").Value) + Convert.ToDecimal(bid.Element("C23").Value));    //합계
+                        }
+                        if (secondConstruction != null) //현재 보는 object가 중간 상위 공종에 포함되어 있다면 단가별 합과 합계를 더해나감
+                        {
+                            secondConstruction.Element("C20").Value = string.Concat(Convert.ToDecimal(secondConstruction.Element("C20").Value) + Convert.ToDecimal(bid.Element("C20").Value));  //재료비
+                            secondConstruction.Element("C21").Value = string.Concat(Convert.ToDecimal(secondConstruction.Element("C21").Value) + Convert.ToDecimal(bid.Element("C21").Value));  //노무비
+                            secondConstruction.Element("C22").Value = string.Concat(Convert.ToDecimal(secondConstruction.Element("C22").Value) + Convert.ToDecimal(bid.Element("C22").Value));  //경비
+                            secondConstruction.Element("C23").Value = string.Concat(Convert.ToDecimal(secondConstruction.Element("C23").Value) + Convert.ToDecimal(bid.Element("C23").Value));  //합계
+                        }
+                        if (thirdConstruction != null)  //현재 보는 object가 마지막 상위 공종에 포함되어 있다면 단가별 합과 합계를 더해나감
+                        {
+                            thirdConstruction.Element("C20").Value = string.Concat(Convert.ToDecimal(thirdConstruction.Element("C20").Value) + Convert.ToDecimal(bid.Element("C20").Value));    //재료비
+                            thirdConstruction.Element("C21").Value = string.Concat(Convert.ToDecimal(thirdConstruction.Element("C21").Value) + Convert.ToDecimal(bid.Element("C21").Value));    //노무비
+                            thirdConstruction.Element("C22").Value = string.Concat(Convert.ToDecimal(thirdConstruction.Element("C22").Value) + Convert.ToDecimal(bid.Element("C22").Value));    //경비
+                            thirdConstruction.Element("C23").Value = string.Concat(Convert.ToDecimal(thirdConstruction.Element("C23").Value) + Convert.ToDecimal(bid.Element("C23").Value));    //합계 
+                        }
+                    }
+                }
+            }
+        }
+
         static void SubstitutePrice()
         {  //BID 파일 내 원가계산서 관련 금액 세팅
             foreach (var bid in eleBID)
@@ -645,6 +714,8 @@ namespace SetUnitPriceByExcel
                 SetExcludingPrice();        //제요율적용제외공종 항목 Target Rate 적용
                 GetAdjustedExcludePrice();  //사정율 적용한 제요율적용제외 금액 저장
             }
+
+            SetPriceOfSuperConstruction();  //공종 합계 bid에 저장 (23.02.07)
 
             FillCostAccount.CalculateBiddingCosts();    //원가계산서 사정율적용(입찰) 금액 계산 및 저장
             SetBusinessInfo();      //사업자등록번호 <T1></C17></T1>에 추가
