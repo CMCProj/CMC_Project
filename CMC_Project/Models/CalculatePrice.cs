@@ -60,6 +60,11 @@ using System.Collections.Generic;
  공종 합계 저장 메소드 (SetPriceOfSuperConstruction) 추가
  --------------------
 */
+/*
+ --------------------
+ 노무비 80% 미만시 단가조정 메소드 추가 (CheckLaborLimit80)
+ --------------------
+ */
 
 
 namespace SetUnitPriceByExcel
@@ -137,7 +142,6 @@ namespace SetUnitPriceByExcel
             var fixCostSum = Data.InvestigateFixedPriceDirectMaterial + Data.InvestigateFixedPriceDirectLabor + Data.InvestigateFixedPriceOutputExpense;
 
             Data.FixedPricePercent = Math.Truncate(((fixCostSum / directConstPrice) * 100) * 10000) / 10000; // 고정금액 비중 계산 / 고정금액 소수점 5자리 수에서 절사 (23.02.06)
-            //var temp = 0;
         }
 
         static void FindMyPercent() //고정금액 비중에 따른 최저네고단가율 계산
@@ -190,7 +194,6 @@ namespace SetUnitPriceByExcel
             decimal unitPrice = 100;
             balancedUnitPriceRate = ((0.9m * unitPrice * (1.0m + balancedRate / 100.0m) * myPercent) / (1.0m - 0.1m * myPercent)) / 100;   //균형단가율
             targetRate = ((unitPrice * (1.0m + personalRate / 100.0m) * 0.9m + unitPrice * balancedUnitPriceRate * 0.1m) * myPercent) / 100;    //Target_Rate
-            var temp = 0;
         }
         static void RoundOrTruncate(decimal Rate, Data Object, ref decimal myMaterialUnit, ref decimal myLaborUnit, ref decimal myExpenseUnit)
         { //절사,반올림 옵션
@@ -205,6 +208,19 @@ namespace SetUnitPriceByExcel
                 myMaterialUnit = Math.Ceiling(Object.MaterialUnit * Rate);
                 myLaborUnit = Math.Ceiling(Object.LaborUnit * Rate);
                 myExpenseUnit = Math.Ceiling(Object.ExpenseUnit * Rate);
+            }
+        }
+        
+        static void CheckLaborLimit80(Data Object, ref decimal myMaterialUnit, ref decimal myLaborUnit, ref decimal myExpenseUnit)
+        { //2.8 노무비 80%미만일 경우 조정하는 메소드
+            if (Object.LaborUnit * 0.8m > myLaborUnit)
+            {
+                decimal deficiency = Object.LaborUnit * 0.8m- myLaborUnit;
+                if (myMaterialUnit!=0)
+                    myMaterialUnit-=deficiency;
+                else if (myExpenseUnit!=0)
+                    myExpenseUnit-=deficiency;
+                myLaborUnit = Object.LaborUnit * 0.8m;                
             }
         }
         static void Recalculation() //사정율에 따라 재계산된 가격을 비드파일에 복사
@@ -264,11 +280,14 @@ namespace SetUnitPriceByExcel
                             else
                             {
                                 RoundOrTruncate(targetRate, curObject, ref myMaterialUnit, ref myLaborUnit, ref myExpenseUnit);
+                                CheckLaborLimit80(curObject, ref myMaterialUnit, ref myLaborUnit, ref myExpenseUnit);
                             }
                         }
                         else if (Data.ZeroWeightDeduction.Equals("2"))
                         {  //최소단가율 50% 적용 X
                             RoundOrTruncate(targetRate, curObject, ref myMaterialUnit, ref myLaborUnit, ref myExpenseUnit);
+                            CheckLaborLimit80(curObject, ref myMaterialUnit, ref myLaborUnit, ref myExpenseUnit);
+
                         }
 
                         myPrice = myMaterialUnit + myLaborUnit + myExpenseUnit;
