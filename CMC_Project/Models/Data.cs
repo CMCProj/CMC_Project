@@ -195,14 +195,14 @@ namespace SetUnitPriceByExcel
         {
             get
             {
-                return Math.Truncate(Convert.ToDecimal(BalanceRateNum) * 100) / 100;  //입력받은 BalancedRateNum(double? 형)을 decimal로 바꿈 / 조달청 기준 단가 공식에서 예가 산출율을 소수점 셋째자리 이하에서 절사하므로 똑같이 절사함 (23.02.07)
+                return Convert.ToDecimal(BalanceRateNum);  //입력받은 BalancedRateNum(double? 형)을 decimal로 바꿈 / 조달청 기준 단가 공식에서 예가 산출율을 소수점 셋째자리 이하에서 절사하므로 똑같이 절사함 (23.02.07)
             }
         }    //업체 평균 예측율
         public static decimal PersonalRate
         {
             get
             {
-                return Math.Truncate(Convert.ToDecimal(PersonalRateNum) * 100) / 100;  //입력받은 PersonalRateNum(double? 형)을 decimal로 바꿈 / 조달청 기준 단가 공식에서 예가 산출율을 소수점 셋째자리 이하에서 절사하므로 똑같이 절사함 (23.02.07)
+                return Convert.ToDecimal(PersonalRateNum);  //입력받은 PersonalRateNum(double? 형)을 decimal로 바꿈 / 조달청 기준 단가 공식에서 예가 산출율을 소수점 셋째자리 이하에서 절사하므로 똑같이 절사함 (23.02.07)
             }
         }    //내 예가 사정률
         

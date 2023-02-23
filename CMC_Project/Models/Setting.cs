@@ -267,7 +267,7 @@ namespace SetUnitPriceByExcel
                     var detailVal = string.Concat(bid.Element("C3").Value);     //세부 공종 번호
                     var curObject = Data.Dic[constNum].Find(x => x.WorkNum == numVal && x.DetailWorkNum == detailVal);
 
-                    if (curObject.Item == "일반" || curObject.Item == "제요율적용제외")
+                    if (curObject.Item == "일반" || curObject.Item == "제요율적용제외" || curObject.Item == "표준시장단가")    //단가 복사 공종에 표준시장단가 추가 (23.2.23)
                     {
                         bid.Element("C16").Value = curObject.MaterialUnit.ToString();    //재료비 단가
                         bid.Element("C17").Value = curObject.LaborUnit.ToString();       //노무비 단가
@@ -313,7 +313,7 @@ namespace SetUnitPriceByExcel
                     var detailVal = string.Concat(bid.Element("C3").Value);     //세부 공종 번호
                     var curObject = Data.Dic[constNum].Find(x => x.WorkNum == numVal && x.DetailWorkNum == detailVal);
 
-                    if (curObject.Item == "일반" || curObject.Item == "제요율적용제외")
+                    if (curObject.Item == "일반" || curObject.Item == "제요율적용제외" || curObject.Item == "표준시장단가")    //단가 복사 공종에 표준시장단가 추가 (23.2.23)
                     {
                         bid.Element("C16").Value = curObject.MaterialUnit.ToString();    //재료비 단가
                         bid.Element("C17").Value = curObject.LaborUnit.ToString();       //노무비 단가
