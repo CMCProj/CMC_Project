@@ -253,11 +253,11 @@ namespace SetUnitPriceByExcel
 
                         if (Data.ZeroWeightDeduction.Equals("1"))
                         {   //최소단가율 50% 적용 O
-                            if (curObject.Weight == 0)
+                            if (curObject.Weight == 0 && curObject.LaborUnit == 0)
                             {
-                                //공종 가중치 0%인 경우 사용자의 소수처리 옵션과 상관없이 50% 적용후 소수첫째자리에서 올림
+                                //공종 가중치 0%이고 노무비 단가가 0원인 경우 사용자의 소수처리 옵션과 상관없이 50% 적용후 소수첫째자리에서 올림 (23.2.23)
                                 curObject.MaterialUnit = Math.Ceiling(curObject.MaterialUnit * 0.5m);
-                                curObject.LaborUnit = Math.Ceiling(curObject.LaborUnit * 0.5m);
+                                //curObject.LaborUnit = Math.Ceiling(curObject.LaborUnit * 0.5m);
                                 curObject.ExpenseUnit = Math.Ceiling(curObject.ExpenseUnit * 0.5m);
 
                                 //최종 단가 및 합계 계산
