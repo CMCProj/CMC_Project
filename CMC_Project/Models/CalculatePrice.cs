@@ -106,9 +106,12 @@ namespace SetUnitPriceByExcel
                         Data.StandardExpense -= Convert.ToDecimal(string.Concat(bid.Element("C22").Value));
 
                         //표준시장단가 99.7% 적용
-                        curObject.MaterialUnit = Math.Ceiling(curObject.MaterialUnit * 0.997m);
-                        curObject.LaborUnit = Math.Ceiling(curObject.LaborUnit * 0.997m);
-                        curObject.ExpenseUnit = Math.Ceiling(curObject.ExpenseUnit * 0.997m);
+                        if (curObject.MaterialUnit!=0)
+                            curObject.MaterialUnit = (Math.Truncate(curObject.MaterialUnit * 0.997m*10m)/10m)+0.1m;
+                        if (curObject.LaborUnit != 0)
+                            curObject.LaborUnit = (Math.Truncate(curObject.LaborUnit * 0.997m*10m)/10m)+0.1m;
+                        if (curObject.ExpenseUnit!=0)
+                            curObject.ExpenseUnit =( Math.Truncate(curObject.ExpenseUnit * 0.997m * 10m) / 10m)+0.1m;
 
                         //단가 변경사항 xml 파일에 적용
                         bid.Element("C16").Value = curObject.MaterialUnit.ToString();    //재료비 단가
@@ -194,6 +197,7 @@ namespace SetUnitPriceByExcel
             decimal unitPrice = 100;
             balancedUnitPriceRate = ((0.9m * unitPrice * (1.0m + balancedRate / 100.0m) * myPercent) / (1.0m - 0.1m * myPercent)) / 100;   //균형단가율
             targetRate = ((unitPrice * (1.0m + personalRate / 100.0m) * 0.9m + unitPrice * balancedUnitPriceRate * 0.1m) * myPercent) / 100;    //Target_Rate
+            //targetRate = Math.Truncate(targetRate * 100000) / 100000;
         }
         static void RoundOrTruncate(decimal Rate, Data Object, ref decimal myMaterialUnit, ref decimal myLaborUnit, ref decimal myExpenseUnit)
         { //절사,반올림 옵션
@@ -294,10 +298,11 @@ namespace SetUnitPriceByExcel
 
                         if (Data.LaborCostLowBound.Equals("1"))  //노무비 하한 80% 적용 O
                         {
-                            if (myPrice > targetPrice)
+                          //  if (myPrice > targetPrice)
                             {  //여유분 조정 가능(조사노무비 대비 My노무비 비율에 따라 조정)
                                 var Excess = myPrice - targetPrice;
                                 var laborExcess = myLaborUnit - curObject.LaborUnit * 0.8m;
+                                laborExcess = Math.Truncate(laborExcess * 10) / 10;
                                 if (laborExcess > 0)
                                 {
                                     if (myExpenseUnit != 0)
@@ -311,6 +316,11 @@ namespace SetUnitPriceByExcel
                                         {
                                             myLaborUnit -= laborExcess;
                                             myMaterialUnit += laborExcess + Excess;
+                                        }
+                                        else
+                                        {
+                                            myLaborUnit -= laborExcess;
+                                            myExpenseUnit += laborExcess + Excess;
                                         }
                                     }
                                 }
