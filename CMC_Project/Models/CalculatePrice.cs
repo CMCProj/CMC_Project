@@ -197,7 +197,7 @@ namespace SetUnitPriceByExcel
             decimal unitPrice = 100;
             balancedUnitPriceRate = ((0.9m * unitPrice * (1.0m + balancedRate / 100.0m) * myPercent) / (1.0m - 0.1m * myPercent)) / 100;   //균형단가율
             targetRate = ((unitPrice * (1.0m + personalRate / 100.0m) * 0.9m + unitPrice * balancedUnitPriceRate * 0.1m) * myPercent) / 100;    //Target_Rate
-            //targetRate = Math.Truncate(targetRate * 100000) / 100000;
+            targetRate = Math.Truncate(targetRate * 1000000) / 1000000;
         }
         static void RoundOrTruncate(decimal Rate, Data Object, ref decimal myMaterialUnit, ref decimal myLaborUnit, ref decimal myExpenseUnit)
         { //절사,반올림 옵션
