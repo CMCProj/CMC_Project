@@ -48,8 +48,8 @@ namespace SetUnitPriceByExcel
         public static bool IsFileMatch = true; // 공내역 파일과 실내역 파일의 공사가 일치하는지
         public static string CompanyRegistrationNum = ""; //1.31 사업자등록번호 추가
         public static string CompanyRegistrationName = ""; // 2.02 회사명 추가
-        public static double? PersonalRateNum; //
-        public static double? BalanceRateNum; // 사정율 출력용 변수
+        public static double? PersonalRateNum; // 내 사정율 변수
+        public static double? BalanceRateNum; // 업체 평균 사정율 변수
 
 
         //public static string desktop_path = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);  //바탕화면 경로 / 사용 안함 (23.02.02)
@@ -195,14 +195,14 @@ namespace SetUnitPriceByExcel
         {
             get
             {
-                return Convert.ToDecimal(BalanceRateNum);  //입력받은 BalancedRateNum(double? 형)을 decimal로 바꿈 / 조달청 기준 단가 공식에서 예가 산출율을 소수점 셋째자리 이하에서 절사하므로 똑같이 절사함 (23.02.07)
+                return Convert.ToDecimal(BalanceRateNum);  //입력받은 BalancedRateNum(double? 형)을 decimal로 바꿈
             }
         }    //업체 평균 예측율
         public static decimal PersonalRate
         {
             get
             {
-                return Convert.ToDecimal(PersonalRateNum);  //입력받은 PersonalRateNum(double? 형)을 decimal로 바꿈 / 조달청 기준 단가 공식에서 예가 산출율을 소수점 셋째자리 이하에서 절사하므로 똑같이 절사함 (23.02.07)
+                return Convert.ToDecimal(PersonalRateNum);  //입력받은 PersonalRateNum(double? 형)을 decimal로 바꿈
             }
         }    //내 예가 사정률
         
